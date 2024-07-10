@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <!-- Menú en la parte superior -->
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="New" />
+                <MenuItem text="Open" />
+                <MenuItem text="Save" />
+            </Menu>
+            <Menu text="Edit">
+                <MenuItem text="Cut" />
+                <MenuItem text="Copy" />
+                <MenuItem text="Paste" />
+            </Menu>
+            <Menu text="Exit">
+                <MenuItem text="Exit" />
+            </Menu>
+        </MenuBar>
+    </top>
+    
+    <!-- Panel en la parte izquierda para arrastrar figuras -->
+    <left>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Pane style="-fx-background-color: lightgray;" prefWidth="100" prefHeight="100" />
+            <Pane style="-fx-background-color: lightblue;" prefWidth="100" prefHeight="100" />
+            <Pane style="-fx-background-color: lightgreen;" prefWidth="100" prefHeight="100" />
+        </VBox>
+    </left>
+    
+    <!-- Imagen que ocupa toda la pantalla -->
+    <center>
+        <ImageView fx:id="mainImageView" fitWidth="800" fitHeight="600" preserveRatio="true">
+            <image>
+                <!-- <Image url="@/resources/image/labeler/imagen.jpg" /> -->
+            </image>
+        </ImageView>
+    </center>
+    
+    <!-- Panel en la parte inferior para mostrar imágenes -->
+    <bottom>
+        <Accordion>
+            <TitledPane text="Images">
+                <ListView fx:id="imageListView" />
+            </TitledPane>
+        </Accordion>
+    </bottom>
+</BorderPane>
