@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <!-- Menú en la parte superior -->
+   <!-- meu superior -->
    <top>
       <MenuBar>
          <Menu text="File">
@@ -33,7 +33,7 @@
       </MenuBar>
    </top>
 
-   <!-- Panel en la parte izquierda para arrastrar figuras -->
+   <!-- panel para arrastrar figuras -->
    <left>
       <VBox spacing="10" style="-fx-padding: 10;">
          <Pane style="-fx-background-color: lightgray;" prefWidth="100" prefHeight="100" />
@@ -42,7 +42,7 @@
       </VBox>
    </left>
 
-   <!-- Imagen que ocupa toda la pantalla -->
+   <!-- imagen que ocupe toda la ventana -->
    <center>
       <ImageView fx:id="mainImageView" fitWidth="800" fitHeight="600" preserveRatio="true">
          <image>
@@ -51,7 +51,7 @@
       </ImageView>
    </center>
 
-   <!-- Panel en la parte inferior para mostrar imágenes -->
+   <!-- panel inferior de proyectos en la carpeta -->
    <bottom>
       <!-- <Accordion>
             <TitledPane text="Images">
