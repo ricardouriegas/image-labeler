@@ -34,17 +34,13 @@ public class Controller {
 
     private Stage stage; // main stage
     private Image currentImage; // current image
+    private File tempPngFile; // temporary PNG file
 
     /**
      * Initializes the controller
      */
     @FXML
     public void initialize() {
-        // ? We will use this to add tags to the list view when we implement the tagging 
-        // ? functionality.
-        // ? Use the following line to add items to the list view
-        // tagListView.getItems().addAll("Etiqueta 1", "Etiqueta 2", "Etiqueta 3");
-
         // Bind the canvas size to the pane size
         mainCanvas.widthProperty().bind(canvasPane.widthProperty());
         mainCanvas.heightProperty().bind(canvasPane.heightProperty());
@@ -61,16 +57,23 @@ public class Controller {
     private void handleLoadImage() {
         FileChooser fileChooser = new FileChooser(); // create a file chooser
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("*.png", "*.jpg", "*.jpeg"));
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(stage); // show the file chooser
 
         // Load the image
         if (file != null) {
             String filePath = file.toURI().toString();
-            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg"))
-                file = convertJpgToPng(file);
 
-            currentImage = new Image(file.toURI().toString()); // load the image
+            // Check if the file is a jpg file
+            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+                tempPngFile = convertJpgToPng(file); // convert the jpg file to a png file
+
+                if (tempPngFile != null)
+                    currentImage = new Image(tempPngFile.toURI().toString()); // load the image
+
+            } else
+                currentImage = new Image(file.toURI().toString()); // load the image
+
             drawImageOnCanvas(); // draw the image on the canvas
         }
     }
@@ -83,27 +86,30 @@ public class Controller {
             GraphicsContext gc = mainCanvas.getGraphicsContext2D(); // get the graphics context
             gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight()); // clear the canvas
             gc.drawImage(currentImage, 0, 0, mainCanvas.getWidth(), mainCanvas.getHeight()); // draw the image
+
+            // Delete the temporary PNG file if it exists
+            if (tempPngFile != null && tempPngFile.exists()) {
+                tempPngFile.delete();
+                tempPngFile = null;
+            }
         }
     }
 
     /**
      * Converts a jpg file to a png file
-     * 
      * @param jpgFile
      * @return pngFile
      */
     private File convertJpgToPng(File jpgFile) {
         try {
-            // Convert the jpg file to a png file
+            // Convert the jpg file to a buffered image
             BufferedImage bufferedImage = Thumbnails.of(jpgFile)
                     .size(1920, 1080)
                     .asBufferedImage();
 
-            // Save the png file
+            // Save the buffered image to a temporary PNG file
             File pngFile = new File(jpgFile.getParent(),
                     jpgFile.getName().replace(".jpg", ".png").replace(".jpeg", ".png"));
-
-            // Save the png file
             Thumbnails.of(bufferedImage)
                     .scale(1)
                     .outputFormat("png")
@@ -111,7 +117,7 @@ public class Controller {
             return pngFile;
         } catch (IOException e) {
             e.printStackTrace();
-            return jpgFile; // Return original file if conversion fails
+            return null; // Return null if conversion fails
         }
     }
 
