@@ -31,10 +31,10 @@ public class App extends Application {
         stage.show(); // show the stage
     }
 
-    private static Parent loadFXML(String fxml) throws IOException {
+    /* private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
-    }
+    } */
 
     // // function to switch to a secondary window
     // static void setRoot(String fxml) throws IOException {

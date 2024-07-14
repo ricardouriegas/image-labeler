@@ -1,8 +1,8 @@
 package image.labeler;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import net.coobird.thumbnailator.Thumbnails;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 
@@ -36,11 +37,13 @@ public class Controller {
 
     /**
      * Initializes the controller
-      */
+     */
     @FXML
     public void initialize() {
-        // Add some tags to the list
-        tagListView.getItems().addAll("Etiqueta 1", "Etiqueta 2", "Etiqueta 3");
+        // ? We will use this to add tags to the list view when we implement the tagging 
+        // ? functionality.
+        // ? Use the following line to add items to the list view
+        // tagListView.getItems().addAll("Etiqueta 1", "Etiqueta 2", "Etiqueta 3");
 
         // Bind the canvas size to the pane size
         mainCanvas.widthProperty().bind(canvasPane.widthProperty());
@@ -53,15 +56,20 @@ public class Controller {
 
     /**
      * Handles the load image button
-      */
+     */
     @FXML
     private void handleLoadImage() {
         FileChooser fileChooser = new FileChooser(); // create a file chooser
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.gif")); // set the file extension filters
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(stage); // show the file chooser
 
         // Load the image
         if (file != null) {
+            String filePath = file.toURI().toString();
+            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg"))
+                file = convertJpgToPng(file);
+
             currentImage = new Image(file.toURI().toString()); // load the image
             drawImageOnCanvas(); // draw the image on the canvas
         }
@@ -79,10 +87,40 @@ public class Controller {
     }
 
     /**
+     * Converts a jpg file to a png file
+     * 
+     * @param jpgFile
+     * @return pngFile
+     */
+    private File convertJpgToPng(File jpgFile) {
+        try {
+            // Convert the jpg file to a png file
+            BufferedImage bufferedImage = Thumbnails.of(jpgFile)
+                    .size(1920, 1080)
+                    .asBufferedImage();
+
+            // Save the png file
+            File pngFile = new File(jpgFile.getParent(),
+                    jpgFile.getName().replace(".jpg", ".png").replace(".jpeg", ".png"));
+
+            // Save the png file
+            Thumbnails.of(bufferedImage)
+                    .scale(1)
+                    .outputFormat("png")
+                    .toFile(pngFile);
+            return pngFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return jpgFile; // Return original file if conversion fails
+        }
+    }
+
+    /**
      * Sets the main stage
+     * 
      * @param stage
-      */
-    public void setStage(Stage stage) {
+     */
+    public void setStage(@SuppressWarnings("exports") Stage stage) {
         this.stage = stage;
     }
 }
