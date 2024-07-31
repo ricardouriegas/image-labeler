@@ -16,6 +16,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public class Controller {
 
@@ -39,11 +40,13 @@ public class Controller {
     private Image currentImage; // current image
     private File tempPngFile; // temporary PNG file
 
-    private ArrayList<ArrayList<Point>> polygons; // List of polygons
-    private ArrayList<Point> currentPolygon; // Current polygon being drawn
+    private ArrayList<Polygon> polygons; // List of polygons
+    private Polygon currentPolygon; // Current polygon being drawn
     private Point initialPoint; // Initial point
 
     private static final double CLOSE_DISTANCE = 10.0; // Distance to detect close points
+    private Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE }; // Array of colors
+    private int colorIndex = 0; // Index to track current color
 
     /**
      * Initializes the controller
@@ -51,7 +54,7 @@ public class Controller {
     @FXML
     public void initialize() {
         polygons = new ArrayList<>();
-        currentPolygon = new ArrayList<>();
+        currentPolygon = new Polygon();
 
         // Bind the canvas size to the pane size
         mainCanvas.widthProperty().bind(canvasPane.widthProperty());
@@ -113,32 +116,36 @@ public class Controller {
 
     /**
      * Function to draw all polygons on the canvas
-     * @param gc Graphics context of the canvas
      */
     private void drawAllPolygons(GraphicsContext gc) {
-        gc.setFill(javafx.scene.paint.Color.RED);
-        gc.setStroke(javafx.scene.paint.Color.BLUE);
         gc.setLineWidth(2);
 
-        for (ArrayList<Point> polygon : polygons) {
+        for (int i = 0; i < polygons.size(); i++) {
+            Polygon polygon = polygons.get(i);
+            Color color = colors[i % colors.length];
+            gc.setFill(color);
+            gc.setStroke(color);
+
             Point prevPoint = null;
-            for (Point point : polygon) {
+            for (Point point : polygon.getPoints()) {
                 gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
                 if (prevPoint != null) {
                     gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
                 }
                 prevPoint = point;
             }
-            if (polygon.size() > 2) {
-                Point firstPoint = polygon.get(0);
-                Point lastPoint = polygon.get(polygon.size() - 1);
+            if (polygon.getPoints().size() > 2) {
+                Point firstPoint = polygon.getPoints().get(0);
+                Point lastPoint = polygon.getPoints().get(polygon.getPoints().size() - 1);
                 gc.strokeLine(lastPoint.getX(), lastPoint.getY(), firstPoint.getX(), firstPoint.getY()); // close the polygon
             }
         }
 
         // Draw the current polygon being created
+        gc.setFill(colors[colorIndex]);
+        gc.setStroke(colors[colorIndex]);
         Point prevPoint = null;
-        for (Point point : currentPolygon) {
+        for (Point point : currentPolygon.getPoints()) {
             gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
             if (prevPoint != null) {
                 gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
@@ -149,28 +156,28 @@ public class Controller {
 
     /**
      * Handles mouse click events
-     * @param event mouse event object
      */
     private void handleMouseClick(MouseEvent event) {
         if (event.getButton() == MouseButton.PRIMARY) {
-            if(currentImage == null) return; // return if no image is loaded
+            if (currentImage == null) return; // return if no image is loaded
 
             double x = event.getX();
             double y = event.getY();
             Point newPoint = new Point(x, y);
 
-            if (currentPolygon.isEmpty()) {
+            if (currentPolygon.getPoints().isEmpty()) {
                 initialPoint = newPoint; // save the initial point
             }
 
-            if (isClose(initialPoint, newPoint) && currentPolygon.size() > 1) {
+            if (isClose(initialPoint, newPoint) && currentPolygon.getPoints().size() > 1) {
                 // Close the polygon by drawing a line to the initial point
-                currentPolygon.add(initialPoint);
-                polygons.add(new ArrayList<>(currentPolygon)); // Save the current polygon
-                currentPolygon.clear(); // Reset for the next polygon
+                currentPolygon.addPoint(initialPoint);
+                polygons.add(currentPolygon); // Save the current polygon
+                currentPolygon = new Polygon(); // Reset for the next polygon
                 initialPoint = null;
+                colorIndex = (colorIndex + 1) % colors.length; // Move to the next color
             } else {
-                currentPolygon.add(newPoint);
+                currentPolygon.addPoint(newPoint);
             }
 
             drawImageOnCanvas(); // redraw the canvas to include the new point and lines
@@ -179,8 +186,6 @@ public class Controller {
 
     /**
      * Checks if two points are close to each other
-     * @param p1 first point
-     * @param p2 second point
      */
     private boolean isClose(Point p1, Point p2) {
         double distance = Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2));
