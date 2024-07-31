@@ -147,11 +147,16 @@ public class Controller {
         for (int i = 0; i < polygons.size(); i++) {
             Polygon polygon = polygons.get(i);
             Color color = colors[i % colors.length];
-            gc.setFill(color);
+            gc.setFill(color.deriveColor(0, 1, 1, 0.3)); // Set fill color with transparency
             gc.setStroke(color);
 
             Point prevPoint = null;
-            for (Point point : polygon.getPoints()) {
+            double[] xPoints = new double[polygon.getPoints().size()];
+            double[] yPoints = new double[polygon.getPoints().size()];
+            for (int j = 0; j < polygon.getPoints().size(); j++) {
+                Point point = polygon.getPoints().get(j);
+                xPoints[j] = point.getX();
+                yPoints[j] = point.getY();
                 gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
                 if (prevPoint != null) {
                     gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
@@ -159,6 +164,7 @@ public class Controller {
                 prevPoint = point;
             }
             if (polygon.getPoints().size() > 2) {
+                gc.fillPolygon(xPoints, yPoints, polygon.getPoints().size()); // Fill the polygon
                 Point firstPoint = polygon.getPoints().get(0);
                 Point lastPoint = polygon.getPoints().get(polygon.getPoints().size() - 1);
                 gc.strokeLine(lastPoint.getX(), lastPoint.getY(), firstPoint.getX(), firstPoint.getY()); // close the polygon
@@ -166,10 +172,15 @@ public class Controller {
         }
 
         // Draw the current polygon being created
-        gc.setFill(colors[colorIndex]);
+        gc.setFill(colors[colorIndex].deriveColor(0, 1, 1, 0.3)); // Set fill color with transparency
         gc.setStroke(colors[colorIndex]);
         Point prevPoint = null;
-        for (Point point : currentPolygon.getPoints()) {
+        double[] xPoints = new double[currentPolygon.getPoints().size()];
+        double[] yPoints = new double[currentPolygon.getPoints().size()];
+        for (int i = 0; i < currentPolygon.getPoints().size(); i++) {
+            Point point = currentPolygon.getPoints().get(i);
+            xPoints[i] = point.getX();
+            yPoints[i] = point.getY();
             gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
             if (prevPoint != null) {
                 gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
