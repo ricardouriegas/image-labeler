@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -73,6 +76,22 @@ public class Controller {
      */
     @FXML
     private void handleLoadImage() {
+        if (!polygons.isEmpty() || !currentPolygon.getPoints().isEmpty()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
+            alert.setTitle("Unsaved Work Warning");
+            alert.setHeaderText(null);
+
+            alert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.YES) {
+                    loadImage();
+                }
+            });
+        } else {
+            loadImage();
+        }
+    }
+
+    private void loadImage() {
         FileChooser fileChooser = new FileChooser(); // create a file chooser
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
@@ -91,6 +110,11 @@ public class Controller {
 
             } else
                 currentImage = new Image(file.toURI().toString()); // load the image
+
+            polygons.clear();
+            currentPolygon = new Polygon();
+            initialPoint = null;
+            colorIndex = 0;
 
             drawImageOnCanvas(); // draw the image on the canvas
         }
