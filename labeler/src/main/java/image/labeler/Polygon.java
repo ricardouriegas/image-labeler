@@ -19,6 +19,10 @@ public class Polygon {
         this.name = name;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     /**
      * Adds a point to the polygon
      * @param point point to add
@@ -42,5 +46,9 @@ public class Polygon {
 
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return id;
     }
 }

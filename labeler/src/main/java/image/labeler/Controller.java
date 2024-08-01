@@ -190,6 +190,7 @@ public class Controller {
             }
 
             if (isClose(initialPoint, newPoint) && currentPolygon.getPoints().size() > 1) {
+                currentPolygon.setId(polygonCounter);
                 currentPolygon.addPoint(initialPoint);
                 currentPolygon.setName("Polygon " + polygonCounter++); // Set a default name
                 polygons.add(currentPolygon);
