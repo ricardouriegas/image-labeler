@@ -43,6 +43,7 @@ public class Controller {
     private static final double CLOSE_DISTANCE = 10.0;
     private Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE };
     private int colorIndex = 0;
+    private int polygonCounter = 1; // Contador para nombres predeterminados
 
     private ContextMenu currentContextMenu;
 
@@ -91,6 +92,7 @@ public class Controller {
             currentPolygon = new Polygon();
             initialPoint = null;
             colorIndex = 0;
+            polygonCounter = 1; // Reset the counter when a new image is loaded
             drawImageOnCanvas();
         }
     }
@@ -134,6 +136,9 @@ public class Controller {
                 Point lastPoint = polygon.getPoints().get(polygon.getPoints().size() - 1);
                 gc.strokeLine(lastPoint.getX(), lastPoint.getY(), firstPoint.getX(), firstPoint.getY());
             }
+
+            // Draw the polygon name in the center
+            drawPolygonName(gc, polygon);
         }
 
         gc.setFill(colors[colorIndex].deriveColor(0, 1, 1, 0.3));
@@ -153,6 +158,19 @@ public class Controller {
         }
     }
 
+    private void drawPolygonName(GraphicsContext gc, Polygon polygon) {
+        double centerX = 0;
+        double centerY = 0;
+        for (Point point : polygon.getPoints()) {
+            centerX += point.getX();
+            centerY += point.getY();
+        }
+        centerX /= polygon.getPoints().size();
+        centerY /= polygon.getPoints().size();
+        gc.setFill(Color.BLACK);
+        gc.fillText(polygon.getName(), centerX, centerY);
+    }
+
     private void handleMouseClick(MouseEvent event) {
         if (event.getButton() == MouseButton.PRIMARY) {
             if (currentImage == null) return;
@@ -167,10 +185,12 @@ public class Controller {
 
             if (isClose(initialPoint, newPoint) && currentPolygon.getPoints().size() > 1) {
                 currentPolygon.addPoint(initialPoint);
+                currentPolygon.setName("Polygon " + polygonCounter++); // Set a default name
                 polygons.add(currentPolygon);
                 currentPolygon = new Polygon();
                 initialPoint = null;
                 colorIndex = (colorIndex + 1) % colors.length;
+                updatePolygonList(); // Update the list view with the new polygon
             } else {
                 currentPolygon.addPoint(newPoint);
             }
