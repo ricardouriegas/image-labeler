@@ -17,7 +17,7 @@
    <!-- menú superior -->
    <top>
       <HBox>
-         <MenuBar>
+         <MenuBar HBox.hgrow="ALWAYS">
             <Menu text="File">
                <MenuItem text="New" />
                <MenuItem text="Open" />
@@ -31,10 +31,10 @@
             </Menu>
             <Menu text="Help">
                <MenuItem text="Usage" />
-               <MenuItem text="About" />
+               <MenuItem text="About" />                    
             </Menu>
          </MenuBar>
-         <Pane HBox.hgrow="ALWAYS" />
+         <!-- <Pane HBox.hgrow="ALWAYS" /> -->
          <Button text="Cargar Imagen" fx:id="loadImageButton" onAction="#handleLoadImage"/>
       </HBox>
    </top>
