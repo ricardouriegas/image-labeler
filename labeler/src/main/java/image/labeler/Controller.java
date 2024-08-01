@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,76 +12,58 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.Image;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import net.coobird.thumbnailator.Thumbnails;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class Controller {
 
-    // Canvas to display the image
-    @FXML
-    private Canvas mainCanvas;
+    @FXML private Canvas mainCanvas;
+    @FXML private ListView<String> tagListView;
+    @FXML private Button loadImageButton;
+    @FXML private Pane canvasPane;
 
-    // List of tags
-    @FXML
-    private ListView<String> tagListView;
+    private Stage stage;
+    private Image currentImage;
+    private File tempPngFile;
 
-    // Button to load an image
-    @FXML
-    private Button loadImageButton;
+    private ArrayList<Polygon> polygons;
+    private Polygon currentPolygon;
+    private Point initialPoint;
 
-    // Pane to hold the canvas
-    @FXML
-    private Pane canvasPane;
+    private static final double CLOSE_DISTANCE = 10.0;
+    private Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE };
+    private int colorIndex = 0;
 
-    private Stage stage; // main stage
-    private Image currentImage; // current image
-    private File tempPngFile; // temporary PNG file
+    private ContextMenu currentContextMenu;
 
-    private ArrayList<Polygon> polygons; // List of polygons
-    private Polygon currentPolygon; // Current polygon being drawn
-    private Point initialPoint; // Initial point
-
-    private static final double CLOSE_DISTANCE = 10.0; // Distance to detect close points
-    private Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE }; // Array of colors
-    private int colorIndex = 0; // Index to track current color
-
-    /**
-     * Initializes the controller
-     */
     @FXML
     public void initialize() {
         polygons = new ArrayList<>();
         currentPolygon = new Polygon();
 
-        // Bind the canvas size to the pane size
         mainCanvas.widthProperty().bind(canvasPane.widthProperty());
         mainCanvas.heightProperty().bind(canvasPane.heightProperty());
-
-        // Redraw the image when the canvas size changes
         mainCanvas.widthProperty().addListener((observable, oldValue, newValue) -> drawImageOnCanvas());
         mainCanvas.heightProperty().addListener((observable, oldValue, newValue) -> drawImageOnCanvas());
-
-        // Add click event handler
         mainCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClick);
     }
 
-    /**
-     * Handles the load image button
-     */
     @FXML
     private void handleLoadImage() {
         if (!polygons.isEmpty() || !currentPolygon.getPoints().isEmpty()) {
             Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
             alert.setTitle("Unsaved Work Warning");
             alert.setHeaderText(null);
-
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.YES) {
                     loadImage();
@@ -92,64 +75,46 @@ public class Controller {
     }
 
     private void loadImage() {
-        FileChooser fileChooser = new FileChooser(); // create a file chooser
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
-        File file = fileChooser.showOpenDialog(stage); // show the file chooser
-
-        // Load the image
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             String filePath = file.toURI().toString();
-
-            // Check if the file is a jpg file
             if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
-                tempPngFile = convertJpgToPng(file); // convert the jpg file to a png file
-
+                tempPngFile = convertJpgToPng(file);
                 if (tempPngFile != null)
-                    currentImage = new Image(tempPngFile.toURI().toString()); // load the image
-
-            } else
-                currentImage = new Image(file.toURI().toString()); // load the image
-
+                    currentImage = new Image(tempPngFile.toURI().toString());
+            } else {
+                currentImage = new Image(file.toURI().toString());
+            }
             polygons.clear();
             currentPolygon = new Polygon();
             initialPoint = null;
             colorIndex = 0;
-
-            drawImageOnCanvas(); // draw the image on the canvas
+            drawImageOnCanvas();
         }
     }
 
-    /**
-     * Function to draw the image on the canvas
-     */
     private void drawImageOnCanvas() {
-        GraphicsContext gc = mainCanvas.getGraphicsContext2D(); // get the graphics context
-        gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight()); // clear the canvas
+        GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
         if (currentImage != null) {
-            gc.drawImage(currentImage, 0, 0, mainCanvas.getWidth(), mainCanvas.getHeight()); // draw the image
+            gc.drawImage(currentImage, 0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
         }
-        drawAllPolygons(gc); // draw all the polygons
-
-        // Delete the temporary PNG file if it exists
+        drawAllPolygons(gc);
         if (tempPngFile != null && tempPngFile.exists()) {
             tempPngFile.delete();
             tempPngFile = null;
         }
     }
 
-    /**
-     * Function to draw all polygons on the canvas
-     */
     private void drawAllPolygons(GraphicsContext gc) {
         gc.setLineWidth(2);
-
         for (int i = 0; i < polygons.size(); i++) {
             Polygon polygon = polygons.get(i);
             Color color = colors[i % colors.length];
-            gc.setFill(color.deriveColor(0, 1, 1, 0.3)); // Set fill color with transparency
+            gc.setFill(color.deriveColor(0, 1, 1, 0.3));
             gc.setStroke(color);
-
             Point prevPoint = null;
             double[] xPoints = new double[polygon.getPoints().size()];
             double[] yPoints = new double[polygon.getPoints().size()];
@@ -157,22 +122,21 @@ public class Controller {
                 Point point = polygon.getPoints().get(j);
                 xPoints[j] = point.getX();
                 yPoints[j] = point.getY();
-                gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
+                gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5);
                 if (prevPoint != null) {
-                    gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
+                    gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY());
                 }
                 prevPoint = point;
             }
             if (polygon.getPoints().size() > 2) {
-                gc.fillPolygon(xPoints, yPoints, polygon.getPoints().size()); // Fill the polygon
+                gc.fillPolygon(xPoints, yPoints, polygon.getPoints().size());
                 Point firstPoint = polygon.getPoints().get(0);
                 Point lastPoint = polygon.getPoints().get(polygon.getPoints().size() - 1);
-                gc.strokeLine(lastPoint.getX(), lastPoint.getY(), firstPoint.getX(), firstPoint.getY()); // close the polygon
+                gc.strokeLine(lastPoint.getX(), lastPoint.getY(), firstPoint.getX(), firstPoint.getY());
             }
         }
 
-        // Draw the current polygon being created
-        gc.setFill(colors[colorIndex].deriveColor(0, 1, 1, 0.3)); // Set fill color with transparency
+        gc.setFill(colors[colorIndex].deriveColor(0, 1, 1, 0.3));
         gc.setStroke(colors[colorIndex]);
         Point prevPoint = null;
         double[] xPoints = new double[currentPolygon.getPoints().size()];
@@ -181,84 +145,124 @@ public class Controller {
             Point point = currentPolygon.getPoints().get(i);
             xPoints[i] = point.getX();
             yPoints[i] = point.getY();
-            gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5); // draw a small circle at each point
+            gc.fillOval(point.getX() - 2.5, point.getY() - 2.5, 5, 5);
             if (prevPoint != null) {
-                gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY()); // draw line between points
+                gc.strokeLine(prevPoint.getX(), prevPoint.getY(), point.getX(), point.getY());
             }
             prevPoint = point;
         }
     }
 
-    /**
-     * Handles mouse click events
-     */
     private void handleMouseClick(MouseEvent event) {
         if (event.getButton() == MouseButton.PRIMARY) {
-            if (currentImage == null) return; // return if no image is loaded
+            if (currentImage == null) return;
 
             double x = event.getX();
             double y = event.getY();
             Point newPoint = new Point(x, y);
 
             if (currentPolygon.getPoints().isEmpty()) {
-                initialPoint = newPoint; // save the initial point
+                initialPoint = newPoint;
             }
 
             if (isClose(initialPoint, newPoint) && currentPolygon.getPoints().size() > 1) {
-                // Close the polygon by drawing a line to the initial point
                 currentPolygon.addPoint(initialPoint);
-                polygons.add(currentPolygon); // Save the current polygon
-                currentPolygon = new Polygon(); // Reset for the next polygon
+                polygons.add(currentPolygon);
+                currentPolygon = new Polygon();
                 initialPoint = null;
-                colorIndex = (colorIndex + 1) % colors.length; // Move to the next color
+                colorIndex = (colorIndex + 1) % colors.length;
             } else {
                 currentPolygon.addPoint(newPoint);
             }
 
-            drawImageOnCanvas(); // redraw the canvas to include the new point and lines
+            drawImageOnCanvas();
+        } else if (event.getButton() == MouseButton.SECONDARY) {
+            if (currentContextMenu != null && currentContextMenu.isShowing()) {
+                currentContextMenu.hide();
+            }
+            Polygon polygon = findPolygonAt(event.getX(), event.getY());
+            if (polygon != null) {
+                currentContextMenu = createPolygonContextMenu(polygon);
+                currentContextMenu.show(mainCanvas, event.getScreenX(), event.getScreenY());
+            }
         }
     }
 
-    /**
-     * Checks if two points are close to each other
-     */
+    private Polygon findPolygonAt(double x, double y) {
+        for (Polygon polygon : polygons) {
+            if (isPointInPolygon(x, y, polygon.getPoints())) {
+                return polygon;
+            }
+        }
+        return null;
+    }
+
+    private boolean isPointInPolygon(double x, double y, ArrayList<Point> points) {
+        int intersectCount = 0;
+        for (int i = 0; i < points.size(); i++) {
+            Point p1 = points.get(i);
+            Point p2 = points.get((i + 1) % points.size());
+
+            if (((p1.getY() > y) != (p2.getY() > y)) &&
+                (x < (p2.getX() - p1.getX()) * (y - p1.getY()) / (p2.getY() - p1.getY()) + p1.getX())) {
+                intersectCount++;
+            }
+        }
+        return (intersectCount % 2) == 1;
+    }
+
+    private ContextMenu createPolygonContextMenu(Polygon polygon) {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem setNameItem = new MenuItem("Set Name");
+        setNameItem.setOnAction(e -> {
+            TextInputDialog nameDialog = new TextInputDialog(polygon.getName());
+            nameDialog.setTitle("Polygon Name");
+            nameDialog.setHeaderText("Enter the name for this polygon:");
+            nameDialog.setContentText("Name:");
+            Optional<String> result = nameDialog.showAndWait();
+            result.ifPresent(name -> {
+                polygon.setName(name);
+                updatePolygonList();
+                drawImageOnCanvas();
+            });
+        });
+
+        MenuItem deleteItem = new MenuItem("Delete Polygon");
+        deleteItem.setOnAction(e -> {
+            polygons.remove(polygon);
+            colorIndex = polygons.size() % colors.length;
+            updatePolygonList();
+            drawImageOnCanvas();
+        });
+
+        contextMenu.getItems().addAll(setNameItem, deleteItem);
+        return contextMenu;
+    }
+
+    private void updatePolygonList() {
+        tagListView.getItems().clear();
+        polygons.forEach(p -> tagListView.getItems().add(p.getName()));
+    }
+
     private boolean isClose(Point p1, Point p2) {
         double distance = Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2));
         return distance < CLOSE_DISTANCE;
     }
 
-    /**
-     * Converts a jpg file to a png file
-     * @param jpgFile
-     * @return pngFile
-     */
     private File convertJpgToPng(File jpgFile) {
         try {
-            // Convert the jpg file to a buffered image
-            BufferedImage bufferedImage = Thumbnails.of(jpgFile)
-                    .size(1920, 1080)
-                    .asBufferedImage();
-
-            // Save the buffered image to a temporary PNG file
-            File pngFile = new File(jpgFile.getParent(),
-                    jpgFile.getName().replace(".jpg", ".png").replace(".jpeg", ".png"));
-            Thumbnails.of(bufferedImage)
-                    .scale(1)
-                    .outputFormat("png")
-                    .toFile(pngFile);
+            BufferedImage bufferedImage = Thumbnails.of(jpgFile).size(1920, 1080).asBufferedImage();
+            File pngFile = new File(jpgFile.getParent(), jpgFile.getName().replace(".jpg", ".png").replace(".jpeg", ".png"));
+            Thumbnails.of(bufferedImage).scale(1).outputFormat("png").toFile(pngFile);
             return pngFile;
         } catch (IOException e) {
             e.printStackTrace();
-            return null; // Return null if conversion fails
+            return null;
         }
     }
 
-    /**
-     * Sets the main stage
-     * 
-     * @param stage
-     */
-    public void setStage(@SuppressWarnings("exports") Stage stage) {
+    public void setStage(Stage stage) {
         this.stage = stage;
     }
 }

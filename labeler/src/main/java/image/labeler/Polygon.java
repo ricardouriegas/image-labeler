@@ -7,11 +7,19 @@ import java.util.ArrayList;
   */
 public class Polygon { 
     private ArrayList<Point> points; // list of points
+    private String name;
 
     public Polygon() {
         points = new ArrayList<>();
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
     /**
      * Adds a point to the polygon
      * @param point point to add
