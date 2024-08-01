@@ -22,7 +22,7 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("window.fxml")); // load the FXML file
         Parent root = fxmlLoader.load(); // load the FXML file
-        scene = new Scene(root, 800, 600);  // create the scene
+        scene = new Scene(root, 1920, 1080);  // create the scene
         stage.setScene(scene); // set the scene
 
         Controller controller = fxmlLoader.getController(); // get the controller
