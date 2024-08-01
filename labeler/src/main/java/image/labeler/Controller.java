@@ -41,7 +41,13 @@ public class Controller {
     private Point initialPoint;
 
     private static final double CLOSE_DISTANCE = 10.0;
-    private Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE };
+    private Color[] colors = { 
+        Color.RED, Color.BLUE, 
+        Color.GREEN, Color.ORANGE, 
+        Color.PURPLE, Color.YELLOW,
+        Color.CYAN, Color.MAGENTA,
+        Color.BROWN, Color.PINK
+    };
     private int colorIndex = 0;
     private int polygonCounter = 1; // Contador para nombres predeterminados
 
