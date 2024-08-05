@@ -2,53 +2,45 @@ package image.labeler;
 
 import java.util.ArrayList;
 
-/**
- * Represents a polygon
-  */
-public class Polygon { 
-    private ArrayList<Point> points; // list of points
-    private String name;
+public class Polygon {
     private int id;
+    private String name;
+    private String category;
+    private ArrayList<Point> points;
 
     public Polygon() {
         points = new ArrayList<>();
     }
 
-    // ********** Setters **********
-    public void setName(String name) {
-        this.name = name;
+    public int getId() {
+        return id;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    /**
-     * Adds a point to the polygon
-     * @param point point to add
-     */
-    public void addPoint(Point point) {
-        points.add(point);
-    }
-    
-    /**
-     * Returns the list of points
-     * @param point list of points
-     */
-    public void removePoint(Point point) {
-        points.remove(point);
-    }
-    
-    // ********** Getters **********
-    public ArrayList<Point> getPoints() {
-        return points;
-    }
-
     public String getName() {
         return name;
     }
 
-    public int getId() {
-        return id;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public ArrayList<Point> getPoints() {
+        return points;
+    }
+
+    public void addPoint(Point point) {
+        points.add(point);
     }
 }

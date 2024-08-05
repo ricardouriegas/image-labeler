@@ -5,17 +5,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -37,6 +42,7 @@ public class Controller {
     private File tempPngFile;
 
     private ArrayList<Polygon> polygons;
+    private ObservableList<String> categories;
     private Polygon currentPolygon;
     private Point initialPoint;
 
@@ -56,6 +62,7 @@ public class Controller {
     @FXML
     public void initialize() {
         polygons = new ArrayList<>();
+        categories = FXCollections.observableArrayList();
         currentPolygon = new Polygon();
 
         mainCanvas.widthProperty().bind(canvasPane.widthProperty());
@@ -240,7 +247,7 @@ public class Controller {
 
     private ContextMenu createPolygonContextMenu(Polygon polygon) {
         ContextMenu contextMenu = new ContextMenu();
-
+    
         MenuItem setNameItem = new MenuItem("Set Name");
         setNameItem.setOnAction(e -> {
             TextInputDialog nameDialog = new TextInputDialog(polygon.getName());
@@ -254,7 +261,43 @@ public class Controller {
                 drawImageOnCanvas();
             });
         });
-
+    
+        MenuItem setCategoryItem = new MenuItem("Set Category");
+        setCategoryItem.setOnAction(e -> {
+            // Crear un ComboBox con categorías existentes
+            ComboBox<String> comboBox = new ComboBox<>(categories);
+            comboBox.setEditable(true);
+            if (polygon.getCategory() != null) {
+                comboBox.setValue(polygon.getCategory()); // Establecer la categoría actual
+            }
+    
+            // Mostrar un diálogo con el ComboBox
+            Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
+            categoryDialog.setTitle("Polygon Category");
+            categoryDialog.setHeaderText("Select or enter a category:");
+            categoryDialog.getDialogPane().setContent(comboBox);
+    
+            // Añadir botones de confirmación y cancelación
+            ButtonType confirmButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            categoryDialog.getButtonTypes().setAll(confirmButtonType, cancelButtonType);
+    
+            // Añadir listener para manejar el cierre del diálogo
+            categoryDialog.setOnCloseRequest(event -> {
+                String category = comboBox.getEditor().getText();
+                if (category != null && !category.isEmpty()) {
+                    if (!categories.contains(category)) {
+                        categories.add(category);
+                    }
+                    polygon.setCategory(category);
+                    updatePolygonList();
+                    drawImageOnCanvas();
+                }
+            });
+    
+            categoryDialog.showAndWait();
+        });
+    
         MenuItem deleteItem = new MenuItem("Delete Polygon");
         deleteItem.setOnAction(e -> {
             polygons.remove(polygon);
@@ -262,14 +305,15 @@ public class Controller {
             updatePolygonList();
             drawImageOnCanvas();
         });
-
-        contextMenu.getItems().addAll(setNameItem, deleteItem);
+    
+        contextMenu.getItems().addAll(setNameItem, setCategoryItem, deleteItem);
         return contextMenu;
     }
+    
 
     private void updatePolygonList() {
         tagListView.getItems().clear();
-        polygons.forEach(p -> tagListView.getItems().add(p.getName()));
+        polygons.forEach(p -> tagListView.getItems().add(p.getName() + " - " + p.getCategory()));
     }
 
     private boolean isClose(Point p1, Point p2) {
@@ -291,5 +335,6 @@ public class Controller {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+        stage.setMaximized(true); // Make the stage full screen
     }
 }
