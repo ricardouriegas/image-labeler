@@ -24,6 +24,8 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -47,6 +49,7 @@ public class Controller {
     private ArrayList<Polygon> polygons;
     private ObservableList<String> categories;
     private Polygon currentPolygon;
+    private Polygon selectedPolygon;
     private Point initialPoint;
 
     private static final double CLOSE_DISTANCE = 10.0;
@@ -68,12 +71,15 @@ public class Controller {
     private boolean isDragging = false;
     private boolean mousePressed = false;
 
+    private static final Color HIGHLIGHT_COLOR = Color.LIME;
+
     @FXML
     public void initialize() {
         polygons = new ArrayList<>();
         categories = FXCollections.observableArrayList();
         currentPolygon = new Polygon();
 
+        // Handlers for mouse events
         mainCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClick);
         mainCanvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
         mainCanvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
@@ -83,6 +89,18 @@ public class Controller {
         TreeItem<String> rootItem = new TreeItem<>("Polygons");
         rootItem.setExpanded(true);
         tagTreeView.setRoot(rootItem);
+
+        // Handlers for UI controls
+        tagTreeView.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleTreeItemClick);
+        tagTreeView.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleTreeItemClick);
+
+        canvasPane.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeyPress);
+        canvasPane.setFocusTraversable(true);
+        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleCanvasClick);
+
+        // Add ContextMenu to TreeView for editing polygons
+        ContextMenu treeContextMenu = createTreeContextMenu();
+        tagTreeView.setContextMenu(treeContextMenu);
     }
 
     @FXML
@@ -119,6 +137,7 @@ public class Controller {
             initialPoint = null;
             colorIndex = 0;
             polygonCounter = 1; // Reset the counter when a new image is loaded
+            selectedPolygon = null;
 
             adjustCanvasSizeToImage();
             drawImageOnCanvas();
@@ -149,7 +168,7 @@ public class Controller {
         gc.setLineWidth(2);
         for (int i = 0; i < polygons.size(); i++) {
             Polygon polygon = polygons.get(i);
-            Color color = colors[i % colors.length];
+            Color color = (polygon == selectedPolygon) ? HIGHLIGHT_COLOR : colors[i % colors.length];
             gc.setFill(color.deriveColor(0, 1, 1, 0.3));
             gc.setStroke(color);
             Point prevPoint = null;
@@ -279,6 +298,37 @@ public class Controller {
         mainCanvas.setScaleY(scale);
     }
 
+    private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ESCAPE) {
+            selectedPolygon = null;
+            drawImageOnCanvas();
+        }
+    }
+
+    private void handleCanvasClick(MouseEvent event) {
+        if (selectedPolygon != null && event.getButton() == MouseButton.PRIMARY) {
+            selectedPolygon = null;
+            drawImageOnCanvas();
+        }
+    }
+
+    private void handleTreeItemClick(MouseEvent event) {
+        TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
+            String polygonName = selectedItem.getValue();
+            for (Polygon polygon : polygons) {
+                if (polygon.getName().equals(polygonName)) {
+                    selectedPolygon = polygon;
+                    drawImageOnCanvas();
+                    break;
+                }
+            }
+        } else {
+            selectedPolygon = null;
+            drawImageOnCanvas();
+        }
+    }
+
     private Polygon findPolygonAt(double x, double y) {
         for (Polygon polygon : polygons) {
             if (isPointInPolygon(x, y, polygon.getPoints())) {
@@ -321,32 +371,32 @@ public class Controller {
 
         MenuItem setCategoryItem = new MenuItem("Set Category");
         setCategoryItem.setOnAction(e -> {
-            // Crear un ComboBox con categorías existentes
             ComboBox<String> comboBox = new ComboBox<>(categories);
             comboBox.setEditable(true);
             if (polygon.getCategory() != null) {
                 comboBox.setValue(polygon.getCategory()); // Establecer la categoría actual
             }
 
-            // Mostrar un diálogo con el ComboBox
             Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
             categoryDialog.setTitle("Polygon Category");
             categoryDialog.setHeaderText("Select or enter a category:");
             categoryDialog.getDialogPane().setContent(comboBox);
 
-            // Añadir botones de confirmación y cancelación
             ButtonType confirmButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
             ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
             categoryDialog.getButtonTypes().setAll(confirmButtonType, cancelButtonType);
 
-            // Añadir listener para manejar el cierre del diálogo
             categoryDialog.setOnCloseRequest(dialogEvent -> {
                 String category = comboBox.getEditor().getText();
-                if (category != null && !category.isEmpty()) {
-                    if (!categories.contains(category)) {
-                        categories.add(category);
+                if (category != null) {
+                    if (category.isEmpty()) {
+                        polygon.setCategory(null); // Set category to null if the input is empty
+                    } else {
+                        if (!categories.contains(category)) {
+                            categories.add(category);
+                        }
+                        polygon.setCategory(category);
                     }
-                    polygon.setCategory(category);
                     updatePolygonList();
                     drawImageOnCanvas();
                 }
@@ -365,6 +415,99 @@ public class Controller {
 
         contextMenu.getItems().addAll(setNameItem, setCategoryItem, deleteItem);
         return contextMenu;
+    }
+
+    private ContextMenu createTreeContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem renameItem = new MenuItem("Rename Polygon");
+        renameItem.setOnAction(e -> {
+            TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
+                Polygon polygonToRename = findPolygonByName(selectedItem.getValue());
+                if (polygonToRename != null) {
+                    TextInputDialog nameDialog = new TextInputDialog(polygonToRename.getName());
+                    nameDialog.setTitle("Rename Polygon");
+                    nameDialog.setHeaderText("Enter new name for the polygon:");
+                    nameDialog.setContentText("Name:");
+                    Optional<String> result = nameDialog.showAndWait();
+                    result.ifPresent(name -> {
+                        polygonToRename.setName(name);
+                        updatePolygonList();
+                        drawImageOnCanvas();
+                    });
+                }
+            }
+        });
+
+        MenuItem changeCategoryItem = new MenuItem("Change Category");
+        changeCategoryItem.setOnAction(e -> {
+            TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
+                Polygon polygonToChangeCategory = findPolygonByName(selectedItem.getValue());
+                if (polygonToChangeCategory != null) {
+                    ComboBox<String> comboBox = new ComboBox<>(categories);
+                    comboBox.setEditable(true);
+                    if (polygonToChangeCategory.getCategory() != null) {
+                        comboBox.setValue(polygonToChangeCategory.getCategory()); // Establecer la categoría actual
+                    }
+
+                    Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
+                    categoryDialog.setTitle("Change Polygon Category");
+                    categoryDialog.setHeaderText("Select or enter a new category:");
+                    categoryDialog.getDialogPane().setContent(comboBox);
+
+                    ButtonType confirmButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    categoryDialog.getButtonTypes().setAll(confirmButtonType, cancelButtonType);
+
+                    // Añadir listener para manejar el cierre del diálogo
+                    categoryDialog.setOnCloseRequest(dialogEvent -> {
+                        String category = comboBox.getEditor().getText();
+                        if (category != null) {
+                            if (category.isEmpty()) {
+                                polygonToChangeCategory.setCategory(null); // Set category to null if the input is empty
+                            } else {
+                                if (!categories.contains(category)) {
+                                    categories.add(category);
+                                }
+                                polygonToChangeCategory.setCategory(category);
+                            }
+                            updatePolygonList();
+                            drawImageOnCanvas();
+                        }
+                    });
+
+                    categoryDialog.showAndWait();
+                }
+            }
+        });
+
+        MenuItem deleteItem = new MenuItem("Delete Polygon");
+        deleteItem.setOnAction(e -> {
+            TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
+                Polygon polygonToDelete = findPolygonByName(selectedItem.getValue());
+                if (polygonToDelete != null) {
+                    polygons.remove(polygonToDelete);
+                    colorIndex = polygons.size() % colors.length;
+                    updatePolygonList();
+                    drawImageOnCanvas();
+                }
+            }
+        });
+
+        contextMenu.getItems().addAll(renameItem, changeCategoryItem, deleteItem);
+        return contextMenu;
+    }
+
+    private Polygon findPolygonByName(String name) {
+        for (Polygon polygon : polygons) {
+            if (polygon.getName().equals(name)) {
+                return polygon;
+            }
+        }
+        return null;
     }
 
     private void updatePolygonList() {
