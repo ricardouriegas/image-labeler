@@ -1,6 +1,7 @@
 package image.labeler.YOLO;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 import image.labeler.Polygon;
 import image.labeler.Point;
 
@@ -41,6 +42,8 @@ public class example {
         polygon.addPoint(new Point(0, 0.5));
         polygons.add(polygon);
 
+        ////////////////////////////////////////////////////////////////////////
+
         // Convert the list of polygons to a list of YOLO objects
         List<YOLO> yoloList = YOLOManager.toYolo(polygons, 100, 100);
 
@@ -50,6 +53,16 @@ public class example {
         }
         
         // Convert the list of YOLO string formats to a list of polygons
+        polygons = YOLOManager.toPolygon(yoloList, 100, 100);
+        System.out.println("===Polygons===");
+        for (Polygon p : polygons) {
+            System.out.println(p);
+        }
+
+        // Convert some YOLO string formats to a list of polygons
+        String yoloString = "1 0.5 0.5 0.5 0.5";
+        yoloList = new ArrayList<>();
+        yoloList.add(new YOLO(yoloString));
         polygons = YOLOManager.toPolygon(yoloList, 100, 100);
         System.out.println("===Polygons===");
         for (Polygon p : polygons) {
