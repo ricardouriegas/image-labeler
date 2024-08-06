@@ -31,6 +31,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
+import javafx.scene.input.ScrollEvent;
 
 public class Controller {
 
@@ -61,17 +62,23 @@ public class Controller {
 
     private ContextMenu currentContextMenu;
 
+    private double dragStartX, dragStartY;
+    private double canvasStartTranslateX, canvasStartTranslateY;
+
+    private boolean isDragging = false;
+    private boolean mousePressed = false;
+
     @FXML
     public void initialize() {
         polygons = new ArrayList<>();
         categories = FXCollections.observableArrayList();
         currentPolygon = new Polygon();
 
-        mainCanvas.widthProperty().bind(canvasPane.widthProperty());
-        mainCanvas.heightProperty().bind(canvasPane.heightProperty());
-        mainCanvas.widthProperty().addListener((observable, oldValue, newValue) -> drawImageOnCanvas());
-        mainCanvas.heightProperty().addListener((observable, oldValue, newValue) -> drawImageOnCanvas());
         mainCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClick);
+        mainCanvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
+        mainCanvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
+        mainCanvas.addEventHandler(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+        mainCanvas.addEventHandler(ScrollEvent.SCROLL, this::handleScroll);
 
         TreeItem<String> rootItem = new TreeItem<>("Polygons");
         rootItem.setExpanded(true);
@@ -112,7 +119,16 @@ public class Controller {
             initialPoint = null;
             colorIndex = 0;
             polygonCounter = 1; // Reset the counter when a new image is loaded
+
+            adjustCanvasSizeToImage();
             drawImageOnCanvas();
+        }
+    }
+
+    private void adjustCanvasSizeToImage() {
+        if (currentImage != null) {
+            mainCanvas.setWidth(currentImage.getWidth());
+            mainCanvas.setHeight(currentImage.getHeight());
         }
     }
 
@@ -191,7 +207,7 @@ public class Controller {
     }
 
     private void handleMouseClick(MouseEvent event) {
-        if (event.getButton() == MouseButton.PRIMARY) {
+        if (event.getButton() == MouseButton.PRIMARY && !isDragging) {
             if (currentImage == null) return;
 
             double x = event.getX();
@@ -226,6 +242,41 @@ public class Controller {
                 currentContextMenu.show(mainCanvas, event.getScreenX(), event.getScreenY());
             }
         }
+    }
+
+    private void handleMousePressed(MouseEvent event) {
+        if (event.getButton() == MouseButton.PRIMARY) {
+            isDragging = false;
+            mousePressed = true;
+            dragStartX = event.getSceneX();
+            dragStartY = event.getSceneY();
+            canvasStartTranslateX = mainCanvas.getTranslateX();
+            canvasStartTranslateY = mainCanvas.getTranslateY();
+        }
+    }
+
+    private void handleMouseDragged(MouseEvent event) {
+        if (event.getButton() == MouseButton.PRIMARY && mousePressed) {
+            isDragging = true;
+            double offsetX = event.getSceneX() - dragStartX;
+            double offsetY = event.getSceneY() - dragStartY;
+            mainCanvas.setTranslateX(canvasStartTranslateX + offsetX);
+            mainCanvas.setTranslateY(canvasStartTranslateY + offsetY);
+        }
+    }
+
+    private void handleMouseReleased(MouseEvent event) {
+        if (event.getButton() == MouseButton.PRIMARY) {
+            mousePressed = false;
+        }
+    }
+
+    private void handleScroll(ScrollEvent event) {
+        double delta = event.getDeltaY();
+        double scale = mainCanvas.getScaleX() + delta / 100;
+        scale = Math.max(0.1, Math.min(scale, 10));
+        mainCanvas.setScaleX(scale);
+        mainCanvas.setScaleY(scale);
     }
 
     private Polygon findPolygonAt(double x, double y) {
@@ -289,7 +340,7 @@ public class Controller {
             categoryDialog.getButtonTypes().setAll(confirmButtonType, cancelButtonType);
 
             // Añadir listener para manejar el cierre del diálogo
-            categoryDialog.setOnCloseRequest(event -> {
+            categoryDialog.setOnCloseRequest(dialogEvent -> {
                 String category = comboBox.getEditor().getText();
                 if (category != null && !category.isEmpty()) {
                     if (!categories.contains(category)) {
