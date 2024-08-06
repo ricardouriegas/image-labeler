@@ -48,15 +48,6 @@ public class example {
         for (YOLO yolo : yoloList) {
             System.out.println(yolo.toYOLOFormat());
         }
-
-        // // transform the list of YOLO objects to a list of strings in YOLO format
-        // List<String> yoloStrings = new ArrayList<>();
-        // for (YOLO yolo : yoloList)
-        //     yoloStrings.add(yolo.toString());
-
-        // // Convert the list of strings in YOLO format to a list of YOLO objects
-        // List<YOLO> yoloList2 = new ArrayList<>();
-
         
         // Convert the list of YOLO string formats to a list of polygons
         polygons = YOLOManager.toPolygon(yoloList, 100, 100);
