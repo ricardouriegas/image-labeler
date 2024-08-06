@@ -49,6 +49,7 @@ public class YOLO {
      */
     public Polygon toPolygon(int imageWidth, int imageHeight) {
         Polygon polygon = new Polygon();
+        polygon.setId(classId);
         polygon.addPoint(new Point(x * imageWidth - width * imageWidth / 2, y * imageHeight - height * imageHeight / 2));
         polygon.addPoint(new Point(x * imageWidth + width * imageWidth / 2, y * imageHeight - height * imageHeight / 2));
         polygon.addPoint(new Point(x * imageWidth + width * imageWidth / 2, y * imageHeight + height * imageHeight / 2));
