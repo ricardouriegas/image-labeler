@@ -59,4 +59,16 @@ public class Point {
         return Objects.hash(x, y);
     }
 
+    /**
+     * Returns a string representation of the point
+     * @return string representation
+      */
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
 }

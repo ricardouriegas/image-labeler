@@ -55,37 +55,29 @@ public class BoundingBox {
         this.polygon = rectangle;
     }
 
-    /**
-     * Returns the bounding box in YOLO format has a String
-     * @param classId is the identifier of the class, a class 
-     * @param imageWidth is the width of the image
-     * @param imageHeight is the height of the image
-     * @return
-     */
-    public String toYOLOFormat(int classId, int imageWidth, int imageHeight) {
-        List<Point> points = polygon.getPoints();
-
-        double minX = points.get(0).getX();
-        double minY = points.get(0).getY();
-        double maxX = points.get(2).getX();
-        double maxY = points.get(2).getY();
-
-        double xCenter = (minX + maxX) / 2.0;
-        double yCenter = (minY + maxY) / 2.0;
-        double width = maxX - minX;
-        double height = maxY - minY;
-
-        double normXCenter = xCenter / imageWidth;
-        double normYCenter = yCenter / imageHeight;
-        double normWidth = width / imageWidth;
-        double normHeight = height / imageHeight;
-
-        return String.format("%d %.6f %.6f %.6f %.6f", classId, normXCenter, normYCenter, normWidth, normHeight);
-    }
-
     // ********** Getters **********
     public Polygon getRectanglePolygon() {
         return polygon;
+    }
+
+    // getX() 
+    public double getX() {
+        return polygon.getPoints().get(0).getX();
+    }
+
+    // getY()
+    public double getY() {
+        return polygon.getPoints().get(0).getY();
+    }
+
+    // getWidth()
+    public double getWidth() {
+        return polygon.getPoints().get(2).getX() - polygon.getPoints().get(0).getX();
+    }
+
+    // getHeight()
+    public double getHeight() {
+        return polygon.getPoints().get(2).getY() - polygon.getPoints().get(0).getY();
     }
 
     // ********** Setters **********
