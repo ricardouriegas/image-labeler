@@ -170,7 +170,7 @@ public class Controller {
 
             currentImg = images.stream().filter(image -> image.getFileName().equals(file.getName())).findFirst().orElse(null);
             if (currentImg == null) {
-                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight());
+                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight(), images.size() + 1);
                 images.add(currentImg);
             }
 
@@ -181,10 +181,11 @@ public class Controller {
             } else {
                 currentImage = new Image(file.toURI().toString());
             }
+
             currentPolygon = new Polygon();
             initialPoint = null;
             colorIndex = 0;
-            polygonCounter = 1; // Reset the counter when a new image is loaded
+            polygonCounter = findHighestPolygonId(currentImg) + 1; // Adjust the counter based on the highest ID
             selectedPolygon = null;
 
             adjustCanvasSizeToImage();
@@ -193,6 +194,16 @@ public class Controller {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int findHighestPolygonId(Img img) {
+        int maxId = 0;
+        for (Polygon polygon : img.getPolygons()) {
+            if (polygon.getId() > maxId) {
+                maxId = polygon.getId();
+            }
+        }
+        return maxId;
     }
 
     private void adjustCanvasSizeToImage() {

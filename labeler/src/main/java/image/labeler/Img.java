@@ -7,11 +7,13 @@ public class Img {
     private String fileName;
     private int width;
     private int height;
+    private int id;
 
-    public Img(String fileName, int width, int height) {
+    public Img(String fileName, int width, int height, int id) {
         this.fileName = fileName;
         this.width = width;
         this.height = height;
+        this.id = id;
         polygons = new ArrayList<>();
     }
 
@@ -33,5 +35,9 @@ public class Img {
     
     public int getWidth() {
         return width;
+    }
+
+    public int getId() {
+        return id;
     }
 }
