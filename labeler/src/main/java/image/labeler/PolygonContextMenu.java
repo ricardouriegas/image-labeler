@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ContextMenu {
+public class PolygonContextMenu {
 
     private String polygonName;
     private boolean isDeleted;
@@ -58,5 +58,10 @@ public class ContextMenu {
             window.setScene(scene);
             window.showAndWait();
         });
+    }
+
+    public boolean isShowing() {
+        // Esta es una implementación simple y podría ser diferente según el uso
+        return false;
     }
 }

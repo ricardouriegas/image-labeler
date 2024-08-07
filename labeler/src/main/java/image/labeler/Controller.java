@@ -9,19 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -38,7 +26,8 @@ import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Map;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 
 public class Controller {
@@ -53,7 +42,8 @@ public class Controller {
     private Image currentImage;
     private File tempPngFile;
 
-    private ArrayList<Polygon> polygons;
+    private ArrayList<Img> images;
+    private Img currentImg;
     private ObservableList<String> categories;
     private Polygon currentPolygon;
     private Polygon selectedPolygon;
@@ -82,7 +72,7 @@ public class Controller {
 
     @FXML
     public void initialize() {
-        polygons = new ArrayList<>();
+        images = new ArrayList<>();
         categories = FXCollections.observableArrayList();
         currentPolygon = new Polygon();
 
@@ -147,7 +137,7 @@ public class Controller {
 
     @FXML
     private void handleLoadImage() {
-        if (!polygons.isEmpty() || !currentPolygon.getPoints().isEmpty()) {
+        if (currentImg != null && (!currentImg.getPolygons().isEmpty() || !currentPolygon.getPoints().isEmpty())) {
             Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
             alert.setTitle("Unsaved Work Warning");
             alert.setHeaderText(null);
@@ -175,6 +165,15 @@ public class Controller {
     private void loadImage(File file) {
         try {
             String filePath = file.toURI().toString();
+            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
+            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
+
+            currentImg = images.stream().filter(image -> image.getFileName().equals(file.getName())).findFirst().orElse(null);
+            if (currentImg == null) {
+                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight());
+                images.add(currentImg);
+            }
+
             if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
                 tempPngFile = convertJpgToPng(file);
                 if (tempPngFile != null)
@@ -182,7 +181,6 @@ public class Controller {
             } else {
                 currentImage = new Image(file.toURI().toString());
             }
-            polygons.clear();
             currentPolygon = new Polygon();
             initialPoint = null;
             colorIndex = 0;
@@ -191,6 +189,7 @@ public class Controller {
 
             adjustCanvasSizeToImage();
             drawImageOnCanvas();
+            updatePolygonList();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -218,8 +217,8 @@ public class Controller {
 
     private void drawAllPolygons(GraphicsContext gc) {
         gc.setLineWidth(2);
-        for (int i = 0; i < polygons.size(); i++) {
-            Polygon polygon = polygons.get(i);
+        for (int i = 0; i < currentImg.getPolygons().size(); i++) {
+            Polygon polygon = currentImg.getPolygons().get(i);
             Color color = (polygon == selectedPolygon) ? HIGHLIGHT_COLOR : colors[i % colors.length];
             gc.setFill(color.deriveColor(0, 1, 1, 0.3));
             gc.setStroke(color);
@@ -293,7 +292,7 @@ public class Controller {
                 currentPolygon.setId(polygonCounter);
                 currentPolygon.addPoint(initialPoint);
                 currentPolygon.setName("Polygon " + polygonCounter++); // Set a default name
-                polygons.add(currentPolygon);
+                currentImg.addPolygon(currentPolygon);
                 currentPolygon = new Polygon();
                 initialPoint = null;
                 colorIndex = (colorIndex + 1) % colors.length;
@@ -368,7 +367,7 @@ public class Controller {
         TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
         if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
             String polygonName = selectedItem.getValue();
-            for (Polygon polygon : polygons) {
+            for (Polygon polygon : currentImg.getPolygons()) {
                 if (polygon.getName().equals(polygonName)) {
                     selectedPolygon = polygon;
                     drawImageOnCanvas();
@@ -382,7 +381,7 @@ public class Controller {
     }
 
     private Polygon findPolygonAt(double x, double y) {
-        for (Polygon polygon : polygons) {
+        for (Polygon polygon : currentImg.getPolygons()) {
             if (isPointInPolygon(x, y, polygon.getPoints())) {
                 return polygon;
             }
@@ -426,7 +425,7 @@ public class Controller {
             ComboBox<String> comboBox = new ComboBox<>(categories);
             comboBox.setEditable(true);
             if (polygon.getCategory() != null) {
-                comboBox.setValue(polygon.getCategory()); // Establecer la categoría actual
+                comboBox.setValue(polygon.getCategory());
             }
 
             Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
@@ -459,8 +458,8 @@ public class Controller {
 
         MenuItem deleteItem = new MenuItem("Delete Polygon");
         deleteItem.setOnAction(e -> {
-            polygons.remove(polygon);
-            colorIndex = polygons.size() % colors.length;
+            currentImg.getPolygons().remove(polygon);
+            colorIndex = currentImg.getPolygons().size() % colors.length;
             updatePolygonList();
             drawImageOnCanvas();
         });
@@ -513,12 +512,11 @@ public class Controller {
                     ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
                     categoryDialog.getButtonTypes().setAll(confirmButtonType, cancelButtonType);
 
-                    // Añadir listener para manejar el cierre del diálogo
                     categoryDialog.setOnCloseRequest(dialogEvent -> {
                         String category = comboBox.getEditor().getText();
                         if (category != null) {
                             if (category.isEmpty()) {
-                                polygonToChangeCategory.setCategory(null); // Set category to null if the input is empty
+                                polygonToChangeCategory.setCategory(null); 
                             } else {
                                 if (!categories.contains(category)) {
                                     categories.add(category);
@@ -541,8 +539,8 @@ public class Controller {
             if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
                 Polygon polygonToDelete = findPolygonByName(selectedItem.getValue());
                 if (polygonToDelete != null) {
-                    polygons.remove(polygonToDelete);
-                    colorIndex = polygons.size() % colors.length;
+                    currentImg.getPolygons().remove(polygonToDelete);
+                    colorIndex = currentImg.getPolygons().size() % colors.length;
                     updatePolygonList();
                     drawImageOnCanvas();
                 }
@@ -554,7 +552,7 @@ public class Controller {
     }
 
     private Polygon findPolygonByName(String name) {
-        for (Polygon polygon : polygons) {
+        for (Polygon polygon : currentImg.getPolygons()) {
             if (polygon.getName().equals(name)) {
                 return polygon;
             }
@@ -563,7 +561,7 @@ public class Controller {
     }
 
     private void updatePolygonList() {
-        Map<String, Boolean> categoryExpansionState = new HashMap<String, Boolean>();
+        Map<String, Boolean> categoryExpansionState = new HashMap<>();
         for (TreeItem<String> categoryItem : tagTreeView.getRoot().getChildren()) {
             categoryExpansionState.put(categoryItem.getValue(), categoryItem.isExpanded());
         }
@@ -571,13 +569,12 @@ public class Controller {
         TreeItem<String> rootItem = new TreeItem<>("Polygons");
         rootItem.setExpanded(true);
 
-        // Agrupar polígonos por categoría
         for (String category : categories) {
             TreeItem<String> categoryItem = new TreeItem<>("Category: " + category);
             categoryItem.setExpanded(categoryExpansionState.getOrDefault("Category: " + category, true));
             rootItem.getChildren().add(categoryItem);
 
-            for (Polygon polygon : polygons) {
+            for (Polygon polygon : currentImg.getPolygons()) {
                 if (category.equals(polygon.getCategory())) {
                     TreeItem<String> polygonItem = new TreeItem<>(polygon.getName());
                     categoryItem.getChildren().add(polygonItem);
@@ -585,7 +582,7 @@ public class Controller {
             }
         }
 
-        for (Polygon polygon : polygons) {
+        for (Polygon polygon : currentImg.getPolygons()) {
             if (polygon.getCategory() == null) {
                 TreeItem<String> polygonItem = new TreeItem<>(polygon.getName());
                 rootItem.getChildren().add(polygonItem);
@@ -614,6 +611,6 @@ public class Controller {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        stage.setMaximized(true); 
+        stage.setMaximized(true); // Make the stage full screen
     }
 }
