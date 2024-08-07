@@ -624,4 +624,49 @@ public class Controller {
         this.stage = stage;
         stage.setMaximized(true); // Make the stage full screen
     }
+
+    // ** Export functions **
+
+    /**
+     * Ok, una vez en este punto, tengan en cuenta que lo que van a tener
+     * que exportar es el ArrayList<Img> images, que contiene todas las imágenes
+     * con sus respectivos polígonos.
+     * 
+     * De esta clase Img pueden obtener su nombre, ancho, alto, id y polígonos.
+     * A su vez, de cada polígono pueden obtener su nombre (del polígono), categoría y puntos.
+     * Cada punto a su vez tiene las coordenadas x e y.
+     * 
+     * Usen estos datos para exportar a los formatos que les toque.
+     * Piensen también en el proceso inverso, recuerden que también debemos poder cargar estos archivos 
+     * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist 
+     * de imágenes, pero de ustedes depende darme ese array. 
+      */
+
+    @FXML
+    private void handleExportToCoco() {
+        // TODO: Implement the export to COCO format
+        // Wichoboy
+        // Alan
+        // Guijarro
+    }
+
+    @FXML
+    private void handleExportToYolo() {
+        // TODO: Implement the export to YOLO format
+        // Uriegas
+    }
+
+    @FXML
+    private void handleExportToPascalVOC() {
+        // TODO: Implement the export to Pascal VOC format
+        // Cristobal
+        // Aris
+    }
+
+    @FXML
+    private void handleExportToJson() {
+        // TODO: Implement the export to JSON format
+        // Joshua
+    }
+
 }
