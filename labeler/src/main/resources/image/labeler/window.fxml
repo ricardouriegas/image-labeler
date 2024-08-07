@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.Priority?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
@@ -55,10 +56,6 @@
 
    <!-- panel inferior de proyectos en la carpeta -->
    <bottom>
-      <!-- <Accordion>
-            <TitledPane text="Images">
-                <ListView fx:id="imageListView" />
-            </TitledPane>
-        </Accordion> -->
+      <ListView fx:id="imageListView" />
    </bottom>
 </BorderPane>

@@ -4,9 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,21 +16,30 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
+import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.Map;
+
+import javafx.embed.swing.SwingFXUtils;
 
 public class Controller {
 
@@ -41,6 +47,7 @@ public class Controller {
     @FXML private TreeView<String> tagTreeView;
     @FXML private Button loadImageButton;
     @FXML private Pane canvasPane;
+    @FXML private ListView<File> imageListView;
 
     private Stage stage;
     private Image currentImage;
@@ -101,6 +108,41 @@ public class Controller {
         // Add ContextMenu to TreeView for editing polygons
         ContextMenu treeContextMenu = createTreeContextMenu();
         tagTreeView.setContextMenu(treeContextMenu);
+
+        // Custom cell factory to show image previews
+        imageListView.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+            @Override
+            public ListCell<File> call(ListView<File> listView) {
+                return new ListCell<File>() {
+                    private ImageView imageView = new ImageView();
+
+                    @Override
+                    protected void updateItem(File item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            try {
+                                BufferedImage bufferedImage = Thumbnails.of(item).size(50, 50).asBufferedImage();
+                                imageView.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+                                setText(item.getName());
+                                setGraphic(imageView);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+        // Load selected image when clicked
+        imageListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                loadImage(newValue);
+            }
+        });
     }
 
     @FXML
@@ -111,19 +153,27 @@ public class Controller {
             alert.setHeaderText(null);
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.YES) {
-                    loadImage();
+                    openDirectory();
                 }
             });
         } else {
-            loadImage();
+            openDirectory();
         }
     }
 
-    private void loadImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null) {
+    private void openDirectory() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File selectedDirectory = directoryChooser.showDialog(stage);
+        if (selectedDirectory != null) {
+            File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
+            if (files != null) {
+                imageListView.getItems().setAll(files);
+            }
+        }
+    }
+
+    private void loadImage(File file) {
+        try {
             String filePath = file.toURI().toString();
             if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
                 tempPngFile = convertJpgToPng(file);
@@ -141,6 +191,8 @@ public class Controller {
 
             adjustCanvasSizeToImage();
             drawImageOnCanvas();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -449,7 +501,7 @@ public class Controller {
                     ComboBox<String> comboBox = new ComboBox<>(categories);
                     comboBox.setEditable(true);
                     if (polygonToChangeCategory.getCategory() != null) {
-                        comboBox.setValue(polygonToChangeCategory.getCategory()); // Establecer la categoría actual
+                        comboBox.setValue(polygonToChangeCategory.getCategory()); 
                     }
 
                     Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
@@ -511,7 +563,7 @@ public class Controller {
     }
 
     private void updatePolygonList() {
-        Map<String, Boolean> categoryExpansionState = new HashMap<>();
+        Map<String, Boolean> categoryExpansionState = new HashMap<String, Boolean>();
         for (TreeItem<String> categoryItem : tagTreeView.getRoot().getChildren()) {
             categoryExpansionState.put(categoryItem.getValue(), categoryItem.isExpanded());
         }
@@ -533,7 +585,6 @@ public class Controller {
             }
         }
 
-        // Añadir polígonos sin categoría
         for (Polygon polygon : polygons) {
             if (polygon.getCategory() == null) {
                 TreeItem<String> polygonItem = new TreeItem<>(polygon.getName());
@@ -563,6 +614,6 @@ public class Controller {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        stage.setMaximized(true); // Make the stage full screen
+        stage.setMaximized(true); 
     }
 }
