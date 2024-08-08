@@ -1,8 +1,7 @@
 image/labeler/Polygon.class
-image/labeler/YOLO/BoundingBox.class
-module-info.class
-image/labeler/App.class
 image/labeler/Point.class
 image/labeler/YOLO/YOLO.class
 image/labeler/Controller.class
-image/labeler/ContextMenu.class
+image/labeler/YOLO/BoundingBox.class
+module-info.class
+image/labeler/App.class

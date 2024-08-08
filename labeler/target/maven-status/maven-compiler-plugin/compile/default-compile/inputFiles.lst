@@ -1,8 +1,11 @@
 /home/richy/image_labeler/labeler/src/main/java/module-info.java
+/home/richy/image_labeler/labeler/src/main/java/image/labeler/YOLO/YOLOManager.java
+/home/richy/image_labeler/labeler/src/main/java/image/labeler/Img.java
+/home/richy/image_labeler/labeler/src/main/java/image/labeler/PolygonContextMenu.java
+/home/richy/image_labeler/labeler/src/main/java/image/labeler/YOLO/example.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/Point.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/Polygon.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/YOLO/BoundingBox.java
-/home/richy/image_labeler/labeler/src/main/java/image/labeler/ContextMenu.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/Controller.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/App.java
 /home/richy/image_labeler/labeler/src/main/java/image/labeler/YOLO/YOLO.java
