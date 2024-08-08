@@ -3,6 +3,7 @@ package image.labeler;
 import java.util.ArrayList;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.math.BigInteger;
 
 public class Img {
@@ -11,6 +12,7 @@ public class Img {
     private int width;
     private int height;
     private String id;
+    private Date exportDate;
 
     public Img(String fileName, int width, int height) {
         this.fileName = fileName;
@@ -62,5 +64,13 @@ public class Img {
 
     public String getId() {
         return id;
+    }
+
+    public Date getExportDate() {
+        return exportDate;
+    }
+
+    public void setExportDate(Date exportDate) {
+        this.exportDate = exportDate;
     }
 }

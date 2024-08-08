@@ -643,6 +643,7 @@ public class Controller {
     @FXML
     private void handleExportToCoco() {
         // TODO: Implement the export to COCO format
+        // TODO: Aquí ustedes se van a encargar de usar el setter para asignarle exportDate a cada imagen antes de exportar
         // Wichoboy
         // Alan
         // Guijarro
