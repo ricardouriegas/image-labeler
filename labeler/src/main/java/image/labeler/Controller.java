@@ -26,7 +26,7 @@ import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Map;
-import javafx.scene.control.Alert;
+
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 
@@ -50,12 +50,12 @@ public class Controller {
     private Point initialPoint;
 
     private static final double CLOSE_DISTANCE = 10.0;
-    private Color[] colors = { 
-        Color.RED, Color.BLUE, 
-        Color.GREEN, Color.ORANGE, 
-        Color.PURPLE, Color.YELLOW,
-        Color.CYAN, Color.MAGENTA,
-        Color.BROWN, Color.PINK
+    private Color[] colors = {
+            Color.RED, Color.BLUE,
+            Color.GREEN, Color.ORANGE,
+            Color.PURPLE, Color.YELLOW,
+            Color.CYAN, Color.MAGENTA,
+            Color.BROWN, Color.PINK
     };
     private int colorIndex = 0;
     private int polygonCounter = 1; // Contador para nombres predeterminados
@@ -137,18 +137,7 @@ public class Controller {
 
     @FXML
     private void handleLoadImage() {
-        if (currentImg != null && (!currentImg.getPolygons().isEmpty() || !currentPolygon.getPoints().isEmpty())) {
-            Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
-            alert.setTitle("Unsaved Work Warning");
-            alert.setHeaderText(null);
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.YES) {
-                    openDirectory();
-                }
-            });
-        } else {
-            openDirectory();
-        }
+        openDirectory();
     }
 
     private void openDirectory() {
@@ -158,23 +147,32 @@ public class Controller {
             File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
             if (files != null) {
                 imageListView.getItems().setAll(files);
+                for (File file : files) {
+                    loadImageToList(file);
+                }
             }
+        }
+    }
+
+    private void loadImageToList(File file) {
+        try {
+            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
+            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
+
+            Img newImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight());
+            images.add(newImg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void loadImage(File file) {
         try {
-            String filePath = file.toURI().toString();
-            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
-            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
-
             currentImg = images.stream().filter(image -> image.getFileName().equals(file.getName())).findFirst().orElse(null);
-            if (currentImg == null) {
-                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight(), images.size() + 1);
-                images.add(currentImg);
-            }
 
-            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            // Convert JPEG to PNG if necessary
+            if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
                 tempPngFile = convertJpgToPng(file);
                 if (tempPngFile != null)
                     currentImage = new Image(tempPngFile.toURI().toString());
@@ -407,7 +405,7 @@ public class Controller {
             Point p2 = points.get((i + 1) % points.size());
 
             if (((p1.getY() > y) != (p2.getY() > y)) &&
-                (x < (p2.getX() - p1.getX()) * (y - p1.getY()) / (p2.getY() - p1.getY()) + p1.getX())) {
+                    (x < (p2.getX() - p1.getX()) * (y - p1.getY()) / (p2.getY() - p1.getY()) + p1.getX())) {
                 intersectCount++;
             }
         }
@@ -511,7 +509,7 @@ public class Controller {
                     ComboBox<String> comboBox = new ComboBox<>(categories);
                     comboBox.setEditable(true);
                     if (polygonToChangeCategory.getCategory() != null) {
-                        comboBox.setValue(polygonToChangeCategory.getCategory()); 
+                        comboBox.setValue(polygonToChangeCategory.getCategory());
                     }
 
                     Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
@@ -527,7 +525,7 @@ public class Controller {
                         String category = comboBox.getEditor().getText();
                         if (category != null) {
                             if (category.isEmpty()) {
-                                polygonToChangeCategory.setCategory(null); 
+                                polygonToChangeCategory.setCategory(null);
                             } else {
                                 if (!categories.contains(category)) {
                                     categories.add(category);
@@ -631,20 +629,21 @@ public class Controller {
      * Ok, una vez en este punto, tengan en cuenta que lo que van a tener
      * que exportar es el ArrayList<Img> images, que contiene todas las imágenes
      * con sus respectivos polígonos.
-     * 
+     *
      * De esta clase Img pueden obtener su nombre, ancho, alto, id y polígonos.
      * A su vez, de cada polígono pueden obtener su nombre (del polígono), categoría y puntos.
      * Cada punto a su vez tiene las coordenadas x e y.
-     * 
+     *
      * Usen estos datos para exportar a los formatos que les toque.
-     * Piensen también en el proceso inverso, recuerden que también debemos poder cargar estos archivos 
-     * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist 
-     * de imágenes, pero de ustedes depende darme ese array. 
-      */
+     * Piensen también en el proceso inverso, recuerden que también debemos poder cargar estos archivos
+     * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist
+     * de imágenes, pero de ustedes depende darme ese array.
+     */
 
     @FXML
     private void handleExportToCoco() {
         // TODO: Implement the export to COCO format
+        // TODO: Aquí ustedes se van a encargar de usar el setter para asignarle exportDate a cada imagen antes de exportar
         // Wichoboy
         // Alan
         // Guijarro
@@ -668,5 +667,4 @@ public class Controller {
         // TODO: Implement the export to JSON format
         // Joshua
     }
-
 }
