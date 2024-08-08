@@ -50,7 +50,7 @@
 
    <!-- canvas que ocupe toda la ventana -->
    <center>
-      <Pane fx:id="canvasPane">
+      <Pane fx:id="canvasPane" style="-fx-background-color: lightgray;">
          <Canvas fx:id="mainCanvas" />
       </Pane>
    </center>

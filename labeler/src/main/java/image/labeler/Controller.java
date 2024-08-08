@@ -26,7 +26,7 @@ import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Map;
-import javafx.scene.control.Alert;
+
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 
@@ -137,18 +137,7 @@ public class Controller {
 
     @FXML
     private void handleLoadImage() {
-        if (currentImg != null && (!currentImg.getPolygons().isEmpty() || !currentPolygon.getPoints().isEmpty())) {
-            Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
-            alert.setTitle("Unsaved Work Warning");
-            alert.setHeaderText(null);
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.YES) {
-                    openDirectory();
-                }
-            });
-        } else {
-            openDirectory();
-        }
+        openDirectory();
     }
 
     private void openDirectory() {
@@ -158,23 +147,32 @@ public class Controller {
             File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
             if (files != null) {
                 imageListView.getItems().setAll(files);
+                for (File file : files) {
+                    loadImageToList(file);
+                }
             }
+        }
+    }
+
+    private void loadImageToList(File file) {
+        try {
+            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
+            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
+
+            Img newImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight());
+            images.add(newImg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void loadImage(File file) {
         try {
-            String filePath = file.toURI().toString();
-            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
-            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
-
             currentImg = images.stream().filter(image -> image.getFileName().equals(file.getName())).findFirst().orElse(null);
-            if (currentImg == null) {
-                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight(), images.size() + 1);
-                images.add(currentImg);
-            }
 
-            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            // Convert JPEG to PNG if necessary
+            if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
                 tempPngFile = convertJpgToPng(file);
                 if (tempPngFile != null)
                     currentImage = new Image(tempPngFile.toURI().toString());
@@ -668,5 +666,4 @@ public class Controller {
         // TODO: Implement the export to JSON format
         // Joshua
     }
-
 }
