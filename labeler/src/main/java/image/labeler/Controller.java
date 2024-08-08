@@ -19,16 +19,21 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
 import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
+
+// YOLO import
+import image.labeler.YOLO.*;
 
 public class Controller {
 
@@ -649,10 +654,30 @@ public class Controller {
         // Guijarro
     }
 
+    
     @FXML
     private void handleExportToYolo() {
         // TODO: Implement the export to YOLO format
         // Uriegas
+        if (currentImg == null) {
+            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        // Convert the polygons of the current image to YOLO format
+        List<YOLO> yoloList = YOLOManager.toYolo(currentImg.getPolygons(), (int) currentImage.getWidth(), (int) currentImage.getHeight());
+        
+        // Save the YOLO objects to a file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save YOLO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            YOLOManager.saveYolo(file, yoloList);
+        }
+
     }
 
     @FXML
