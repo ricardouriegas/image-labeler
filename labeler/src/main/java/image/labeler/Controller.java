@@ -26,7 +26,6 @@ import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Map;
-
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 
