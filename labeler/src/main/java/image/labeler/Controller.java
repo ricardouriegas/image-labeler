@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -25,17 +26,17 @@ import net.coobird.thumbnailator.Thumbnails;
 import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import image.labeler.JSON.JSON;
-
-import java.util.Map;
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 
 // YOLO import
 import image.labeler.YOLO.*;
+
+// JSON import
+import image.labeler.JSON.*;
 
 public class Controller {
 
@@ -48,6 +49,7 @@ public class Controller {
     private Stage stage;
     private Image currentImage;
     private File tempPngFile;
+    private File currentDirectory; // Almacena el path del directorio actual
 
     private ArrayList<Img> images;
     private Img currentImg;
@@ -151,9 +153,11 @@ public class Controller {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(stage);
         if (selectedDirectory != null) {
+            currentDirectory = selectedDirectory; // Almacena el directorio actual
             File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
             if (files != null) {
                 imageListView.getItems().setAll(files);
+                images.clear();  
                 for (File file : files) {
                     loadImageToList(file);
                 }
@@ -630,37 +634,84 @@ public class Controller {
         stage.setMaximized(true); // Make the stage full screen
     }
 
-    // ** Export functions **
+    public void reconstructFromImages(List<Img> imgList) {
+        images.clear();  
+        imageListView.getItems().clear(); 
+    
+        if (imgList == null || imgList.isEmpty()) {
+            GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            tagTreeView.setRoot(new TreeItem<>("Polygons"));  
+            currentImg = null;
+            currentImage = null;
+            return;
+        }
+    
+        images.addAll(imgList);
+    
+        for (Img img : imgList) {
+            File file = new File(currentDirectory, img.getFileName()); 
+            try {
+                if (file.exists()) {
+                    if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                        String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                        File pngFile = new File(currentDirectory, pngFileName);
+                        if (pngFile.exists()) {
+                            currentImage = new Image(pngFile.toURI().toString());
+                        } else {
+                            tempPngFile = convertJpgToPng(file);
+                            currentImage = new Image(tempPngFile.toURI().toString());
+                            tempPngFile.delete();  
+                        }
+                    } else {
+                        currentImage = new Image(file.toURI().toString());
+                    }
+                    imageListView.getItems().add(file);  
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Cargando imagen: " + img.getFileName());
+        }
+    
+        if (!imgList.isEmpty()) {
+            currentImg = imgList.get(0);
+            File file = new File(currentDirectory, currentImg.getFileName());
+            if (file.exists()) {
+                if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                    String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                    File pngFile = new File(currentDirectory, pngFileName);
+                    if (pngFile.exists()) {
+                        currentImage = new Image(pngFile.toURI().toString());
+                    } else {
+                        tempPngFile = convertJpgToPng(file);
+                        currentImage = new Image(tempPngFile.toURI().toString());
+                        tempPngFile.delete();  
+                    }
+                } else {
+                    currentImage = new Image(file.toURI().toString());
+                }
+            }
+    
+            adjustCanvasSizeToImage();
+            drawImageOnCanvas();
+            updatePolygonList();  
+            System.out.println("ya terminé");
+        }
+    }
+    
+    
 
-    /**
-     * Ok, una vez en este punto, tengan en cuenta que lo que van a tener
-     * que exportar es el ArrayList<Img> images, que contiene todas las imágenes
-     * con sus respectivos polígonos.
-     * 
-     * De esta clase Img pueden obtener su nombre, ancho, alto, id y polígonos.
-     * A su vez, de cada polígono pueden obtener su nombre (del polígono), categoría y puntos.
-     * Cada punto a su vez tiene las coordenadas x e y.
-     * 
-     * Usen estos datos para exportar a los formatos que les toque.
-     * Piensen también en el proceso inverso, recuerden que también debemos poder cargar estos archivos 
-     * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist 
-     * de imágenes, pero de ustedes depende darme ese array. 
-      */
+    // ** Export functions **
 
     @FXML
     private void handleExportToCoco() {
         // TODO: Implement the export to COCO format
-        // TODO: Aquí ustedes se van a encargar de usar el setter para asignarle exportDate a cada imagen antes de exportar
-        // Wichoboy
-        // Alan
-        // Guijarro
     }
 
-    
     @FXML
     private void handleExportToYolo() {
         // TODO: Implement the export to YOLO format
-        // Uriegas
         if (currentImg == null) {
             Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
             alert.showAndWait();
@@ -679,20 +730,51 @@ public class Controller {
         if (file != null) {
             YOLOManager.saveYolo(file, yoloList);
         }
-
     }
 
     @FXML
     private void handleExportToPascalVOC() {
         // TODO: Implement the export to Pascal VOC format
-        // Cristobal
-        // Aris
     }
 
     @FXML
     private void handleExportToJson() {
         JSON json = new JSON();
         json.toJson(images);
-        // Joshua
+    }
+
+    // *** Import functions ***
+    @FXML
+    private void handleImportFromCoco() {
+        // TODO: Implement the import from COCO format
+    }
+
+    @FXML
+    private void handleImportFromYolo() {
+        // TODO: Implement the import from YOLO format
+    }
+
+    @FXML
+    private void handleImportFromPascalVOC() {
+        // TODO: Implement the import from Pascal VOC format
+    }
+
+    @FXML
+    private void handleImportFromJson() {
+        if (images == null || images.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JSON File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+        
+        JSON json = new JSON();
+        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
+
+        reconstructFromImages(list);
     }
 }

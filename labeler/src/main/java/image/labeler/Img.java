@@ -74,4 +74,16 @@ public class Img implements Serializable {
     public void setExportDate(Date exportDate) {
         this.exportDate = exportDate;
     }
+
+    @Override
+    public String toString() {
+        return "Img{" +
+                "polygons=" + polygons +
+                ", fileName='" + fileName + '\'' +
+                ", width=" + width +
+                ", height=" + height +
+                ", id='" + id + '\'' +
+                ", exportDate=" + exportDate +
+                '}';
+    }
 }

@@ -1,6 +1,52 @@
 [
   {
-    "polygons": [],
+    "polygons": [
+      {
+        "id": 1,
+        "name": "Polygon 1",
+        "category": "manuel",
+        "points": [
+          {
+            "x": 260.0,
+            "y": 170.0
+          },
+          {
+            "x": 410.0,
+            "y": 222.0
+          },
+          {
+            "x": 259.0,
+            "y": 318.0
+          },
+          {
+            "x": 260.0,
+            "y": 170.0
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Polygon 2",
+        "points": [
+          {
+            "x": 315.0,
+            "y": 236.0
+          },
+          {
+            "x": 422.0,
+            "y": 268.0
+          },
+          {
+            "x": 402.0,
+            "y": 183.0
+          },
+          {
+            "x": 315.0,
+            "y": 236.0
+          }
+        ]
+      }
+    ],
     "fileName": "119454189.jpeg",
     "width": 1080,
     "height": 1080,
@@ -11,26 +57,23 @@
       {
         "id": 1,
         "name": "Polygon 1",
+        "category": "manuel",
         "points": [
           {
-            "x": 569.0,
-            "y": 319.0
+            "x": 257.0,
+            "y": 141.0
           },
           {
-            "x": 401.0,
-            "y": 315.0
+            "x": 325.0,
+            "y": 383.0
           },
           {
-            "x": 692.0,
-            "y": 381.0
+            "x": 604.0,
+            "y": 292.0
           },
           {
-            "x": 473.0,
-            "y": 492.0
-          },
-          {
-            "x": 569.0,
-            "y": 319.0
+            "x": 257.0,
+            "y": 141.0
           }
         ]
       }
@@ -41,31 +84,7 @@
     "id": "d3d818c26bb6df6c810a8e576faf40c6"
   },
   {
-    "polygons": [
-      {
-        "id": 1,
-        "name": "Polygon 1",
-        "category": "papa",
-        "points": [
-          {
-            "x": 339.0,
-            "y": 125.0
-          },
-          {
-            "x": 509.0,
-            "y": 189.0
-          },
-          {
-            "x": 322.0,
-            "y": 285.0
-          },
-          {
-            "x": 339.0,
-            "y": 125.0
-          }
-        ]
-      }
-    ],
+    "polygons": [],
     "fileName": "wallpaperflare.com_wallpaper (1).jpg",
     "width": 1902,
     "height": 1080,
@@ -101,24 +120,10 @@
   },
   {
     "polygons": [],
-    "fileName": "rainbow_dash___speed__1920x1080__by_shawnyall-d5s219b.png",
-    "width": 1920,
-    "height": 1080,
-    "id": "68de3c909c3d3390204c8c0008cb3a51"
-  },
-  {
-    "polygons": [],
     "fileName": "aspire_by_vest_d8rlh16-414w-2x.jpg",
     "width": 724,
     "height": 1080,
     "id": "f1480256cc30ee6fd243bc9c932b3fd9"
-  },
-  {
-    "polygons": [],
-    "fileName": "1332803.png",
-    "width": 1916,
-    "height": 1080,
-    "id": "c645eb0ec074796334a1a389baf04102"
   },
   {
     "polygons": [],

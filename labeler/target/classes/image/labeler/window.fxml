@@ -31,6 +31,12 @@
                <MenuItem onAction="#handleExportToJson" text="Export to JSON" />
                <MenuItem onAction="#handleExportToPascalVOC" text="Export to Pascal VOC"/>
             </Menu>
+            <Menu text="Import">
+               <MenuItem onAction="#handleImportFromYolo" text="Import from YOLO" />
+               <MenuItem onAction="#handleImportFromCoco" text="Import from COCO" />
+               <MenuItem onAction="#handleImportFromJson" text="Import from JSON" />
+               <MenuItem onAction="#handleImportFromPascalVOC" text="Import from Pascal VOC"/>
+            </Menu>
             <Menu text="Help">
                <MenuItem text="Usage" />
                <MenuItem text="About" />
