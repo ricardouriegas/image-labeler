@@ -4,6 +4,10 @@ import image.labeler.Img;
 import image.labeler.Polygon;
 import image.labeler.Point;
 import java.util.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 /**
  * This class is responsible for creating a COCO-style JSON representation
@@ -74,7 +78,7 @@ public class COCO {
      * @param id The unique ID for the category.
      * @param name The name of the category.
      */
-    public void addCategory(int id, String name) {
+    public void addCategory(String id, String name) {
         // Create a map to represent the category
         Map<String, Object> category = new HashMap<>();
         category.put("id", id); // Unique ID for the category
@@ -88,13 +92,13 @@ public class COCO {
      * @param categoryName The name of the category.
      * @return The ID of the category, or -1 if not found.
      */
-    private int getCategoryID(String categoryName) {
+    private String getCategoryID(String categoryName) {
         for (Map<String, Object> category : categories) {
             if (category.get("name").equals(categoryName)) {
-                return (int) category.get("id"); // Return the ID if found
+                return category.get("id").toString(); // Return the ID if found
             }
         }
-        return -1; // Return -1 if the category is not found
+        return "-1"; // Return -1 if the category is not found
     }
 
     /**
@@ -118,4 +122,127 @@ public class COCO {
         // Create a list for the bounding box coordinates
         return Arrays.asList((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
     }
+
+    public List<Map<String, Object>> getImages() {
+        return images;
+    }
+
+    public List<Map<String, Object>> getAnnotations() {
+        return annotations;
+    }
+
+    public List<Map<String, Object>> getCategories() {
+        return categories;
+    }
+
+    public void exportToJson(String filePath) {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("{\n");
+
+        // Add images
+        jsonBuilder.append("  \"images\": [\n");
+        for (int i = 0; i < images.size(); i++) {
+            Map<String, Object> image = images.get(i);
+            jsonBuilder.append("    {");
+            appendJsonMap(jsonBuilder, image);
+            jsonBuilder.append("}");
+            if (i < images.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+        }
+        jsonBuilder.append("  ],\n");
+
+        // Add annotations
+        jsonBuilder.append("  \"annotations\": [\n");
+        for (int i = 0; i < annotations.size(); i++) {
+            Map<String, Object> annotation = annotations.get(i);
+            jsonBuilder.append("    {");
+            appendJsonMap(jsonBuilder, annotation);
+            jsonBuilder.append("}");
+            if (i < annotations.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+        }
+        jsonBuilder.append("  ],\n");
+
+
+        ArrayList<Map<String, Object>> existingCategories = new ArrayList<>();
+        // Add categories
+        jsonBuilder.append("  \"categories\": [\n");
+        for (int i = 0; i < categories.size(); i++) {
+            Map<String, Object> category = categories.get(i);
+            
+            if(existingCategories.contains(category)){
+                continue;
+            }
+
+            jsonBuilder.append("    {");
+            appendJsonMap(jsonBuilder, category);
+            jsonBuilder.append("}");
+            if (i < categories.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+            existingCategories.add(category);
+        }
+        jsonBuilder.append("  ]\n");
+
+        jsonBuilder.append("}");
+
+        // Write JSON string to file
+        try (FileWriter file = new FileWriter(filePath)) {
+            file.write(jsonBuilder.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void appendJsonMap(StringBuilder jsonBuilder, Map<String, Object> map) {
+        boolean first = true;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!first) {
+                jsonBuilder.append(", ");
+            }
+            first = false;
+            jsonBuilder.append("\"").append(entry.getKey()).append("\": ");
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                jsonBuilder.append("\"").append(value).append("\"");
+            } else if (value instanceof Number || value instanceof Boolean) {
+                jsonBuilder.append(value);
+            } else if (value instanceof List) {
+                appendJsonArray(jsonBuilder, (List<?>) value);
+            } else {
+                // Handle nested objects
+                jsonBuilder.append("{");
+                appendJsonMap(jsonBuilder, (Map<String, Object>) value);
+                jsonBuilder.append("}");
+            }
+        }
+    }
+
+    private void appendJsonArray(StringBuilder jsonBuilder, List<?> list) {
+        jsonBuilder.append("[");
+        for (int i = 0; i < list.size(); i++) {
+            Object item = list.get(i);
+            if (item instanceof String) {
+                jsonBuilder.append("\"").append(item).append("\"");
+            } else if (item instanceof Number || item instanceof Boolean) {
+                jsonBuilder.append(item);
+            } else if (item instanceof Map) {
+                jsonBuilder.append("{");
+                appendJsonMap(jsonBuilder, (Map<String, Object>) item);
+                jsonBuilder.append("}");
+            } else if (item instanceof List) {
+                appendJsonArray(jsonBuilder, (List<?>) item);
+            }
+            if (i < list.size() - 1) {
+                jsonBuilder.append(", ");
+            }
+        }
+        jsonBuilder.append("]");
+    }
+    
 }

@@ -21,6 +21,7 @@
             <artifactId>javafx-fxml</artifactId>
             <version>13</version>
         </dependency>
+
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
