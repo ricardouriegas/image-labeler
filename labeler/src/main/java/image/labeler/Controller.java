@@ -635,13 +635,13 @@ public class Controller {
     }
 
     public void reconstructFromImages(List<Img> imgList) {
-        images.clear();  
-        imageListView.getItems().clear(); 
-    
+        images.clear();
+        imageListView.getItems().clear();
+        
         if (imgList == null || imgList.isEmpty()) {
             GraphicsContext gc = mainCanvas.getGraphicsContext2D();
             gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
-            tagTreeView.setRoot(new TreeItem<>("Polygons"));  
+            tagTreeView.setRoot(new TreeItem<>("Polygons"));
             currentImg = null;
             currentImage = null;
             return;
@@ -650,7 +650,7 @@ public class Controller {
         images.addAll(imgList);
     
         for (Img img : imgList) {
-            File file = new File(currentDirectory, img.getFileName()); 
+            File file = new File(currentDirectory, img.getFileName());
             try {
                 if (file.exists()) {
                     if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
@@ -661,12 +661,12 @@ public class Controller {
                         } else {
                             tempPngFile = convertJpgToPng(file);
                             currentImage = new Image(tempPngFile.toURI().toString());
-                            tempPngFile.delete();  
+                            tempPngFile.delete();
                         }
                     } else {
                         currentImage = new Image(file.toURI().toString());
                     }
-                    imageListView.getItems().add(file);  
+                    imageListView.getItems().add(file);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -686,7 +686,7 @@ public class Controller {
                     } else {
                         tempPngFile = convertJpgToPng(file);
                         currentImage = new Image(tempPngFile.toURI().toString());
-                        tempPngFile.delete();  
+                        tempPngFile.delete();
                     }
                 } else {
                     currentImage = new Image(file.toURI().toString());
@@ -695,15 +695,54 @@ public class Controller {
     
             adjustCanvasSizeToImage();
             drawImageOnCanvas();
-            updatePolygonList();  
+            updateTreeViewForCurrentImage(currentImg); 
             System.out.println("ya terminé");
         }
     }
     
+    private void updateTreeViewForCurrentImage(Img img) {
+        TreeItem<String> rootItem = new TreeItem<>("Polygons");
+        Map<String, TreeItem<String>> categoryMap = new HashMap<>();
+    
+        for (String category : categories) {
+            TreeItem<String> categoryItem = new TreeItem<>("Category: " + category);
+            categoryMap.put(category, categoryItem);
+            rootItem.getChildren().add(categoryItem);
+        }
+    
+        for (Polygon polygon : img.getPolygons()) {
+            String category = polygon.getCategory();
+            if (category != null && !category.isEmpty()) {
+                TreeItem<String> categoryItem = categoryMap.get(category);
+                if (categoryItem != null) {
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                } else {
+                    categoryItem = new TreeItem<>("Category: " + category);
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                    categoryMap.put(category, categoryItem);
+                    rootItem.getChildren().add(categoryItem);
+                    categories.add(category);   
+                }
+            } else {
+                rootItem.getChildren().add(new TreeItem<>(polygon.getName()));
+            }
+        }
+    
+        tagTreeView.setRoot(rootItem);
+        rootItem.setExpanded(true);
+        tagTreeView.refresh();
+    
+        TreeItem<String> tempCategory = new TreeItem<>("Temporary Category");
+        rootItem.getChildren().add(tempCategory);
+        tagTreeView.refresh();
+        rootItem.getChildren().remove(tempCategory);
+        tagTreeView.refresh();
+    }
+    
+    
     
 
     // ** Export functions **
-
     @FXML
     private void handleExportToCoco() {
         // TODO: Implement the export to COCO format
