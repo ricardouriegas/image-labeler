@@ -5,8 +5,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.math.BigInteger;
+import java.io.Serializable;
 
-public class Img {
+public class Img implements Serializable {
     private ArrayList<Polygon> polygons;
     private String fileName;
     private int width;

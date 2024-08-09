@@ -4,7 +4,9 @@ module image.labeler {
     requires java.desktop;
     requires thumbnailator;
     requires javafx.swing;
+    requires com.google.gson;
 
-    opens image.labeler to javafx.fxml;
+    opens image.labeler to javafx.fxml, com.google.gson; // Abrir el paquete a Gson y JavaFX
+    opens image.labeler.JSON to com.google.gson;
     exports image.labeler;
 }

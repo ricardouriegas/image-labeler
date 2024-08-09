@@ -1,7 +1,22 @@
+image/labeler/YOLO/example.class
 image/labeler/Polygon.class
+<<<<<<< HEAD
+=======
+image/labeler/JSON/JSON.class
+>>>>>>> JSON
 image/labeler/Point.class
 image/labeler/YOLO/YOLO.class
+image/labeler/Controller$1$1.class
+image/labeler/Controller$1.class
 image/labeler/Controller.class
+<<<<<<< HEAD
 image/labeler/YOLO/BoundingBox.class
 module-info.class
+=======
+image/labeler/PolygonContextMenu.class
+image/labeler/Img.class
+image/labeler/YOLO/YOLOManager.class
+module-info.class
+image/labeler/YOLO/BoundingBox.class
+>>>>>>> JSON
 image/labeler/App.class
