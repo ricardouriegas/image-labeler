@@ -1,8 +1,9 @@
 package image.labeler;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Polygon {
+public class Polygon implements Serializable {
     private int id;
     private String name;
     private String category;

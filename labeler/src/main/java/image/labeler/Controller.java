@@ -25,6 +25,9 @@ import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
 import java.util.Optional;
+
+import image.labeler.JSON.JSON;
+
 import java.util.Map;
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
@@ -663,7 +666,8 @@ public class Controller {
 
     @FXML
     private void handleExportToJson() {
-        // TODO: Implement the export to JSON format
+        JSON json = new JSON();
+        json.toJson(images);
         // Joshua
     }
 }
