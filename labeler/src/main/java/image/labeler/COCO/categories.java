@@ -26,7 +26,7 @@ public class categories {
         return name;
     }
 
-    private String generateId(String name) {
+    public String generateId(String name) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5"); // MD5 hash function
             byte[] messageDigest = md.digest(name.getBytes()); // generate hash

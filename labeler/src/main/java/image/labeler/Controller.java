@@ -655,14 +655,16 @@ public class Controller {
         // Guijarro
         // Morinek
         COCO coco = new COCO();
-        for(Polygon poligono : currentImg.getPolygons()){
-            categories tempCategory = new categories(poligono.getCategory());
-            coco.addCategory(tempCategory.getId() ,tempCategory.getName()); 
+        for(Img current : images){
+            for(Polygon poligono : current.getPolygons()){
+                String category = poligono.getCategory();
+                if(category != null){
+                    categories tempCategory = new categories(poligono.getCategory());
+                    coco.addCategory(tempCategory.getId() ,tempCategory.getName()); 
+                }
+            }   
+            coco.addImage(current);
         }
-
-        coco.addImage(currentImg);
-    
-
         // Save the COCO objects to a file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save COCO File");

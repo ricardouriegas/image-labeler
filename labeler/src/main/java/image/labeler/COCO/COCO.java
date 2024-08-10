@@ -136,6 +136,11 @@ public class COCO {
     }
 
     public void exportToJson(String filePath) {
+
+        if (!filePath.toLowerCase().endsWith(".json")) {
+            filePath += ".json";
+        }
+        
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{\n");
 
