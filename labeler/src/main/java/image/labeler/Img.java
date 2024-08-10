@@ -5,6 +5,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.math.BigInteger;
+import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.math.BigInteger;
 
 public class Img {
     private ArrayList<Polygon> polygons;
@@ -57,7 +62,7 @@ public class Img {
     public int getHeight() {
         return height;
     }
-
+    
     public int getWidth() {
         return width;
     }
@@ -72,5 +77,17 @@ public class Img {
 
     public void setExportDate(Date exportDate) {
         this.exportDate = exportDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Img{" +
+                "polygons=" + polygons +
+                ", fileName='" + fileName + '\'' +
+                ", width=" + width +
+                ", height=" + height +
+                ", id='" + id + '\'' +
+                ", exportDate=" + exportDate +
+                '}';
     }
 }

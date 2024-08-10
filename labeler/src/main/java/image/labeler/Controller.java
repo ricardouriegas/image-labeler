@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -37,6 +38,12 @@ import image.labeler.COCO.COCO;
 import image.labeler.YOLO.*;
 import image.labeler.COCO.categories;
 
+// YOLO import
+import image.labeler.YOLO.*;
+
+// JSON import
+import image.labeler.JSON.*;
+
 public class Controller {
 
     @FXML private Canvas mainCanvas;
@@ -48,6 +55,7 @@ public class Controller {
     private Stage stage;
     private Image currentImage;
     private File tempPngFile;
+    private File currentDirectory; // Almacena el path del directorio actual
 
     private ArrayList<Img> images;
     private Img currentImg;
@@ -151,9 +159,11 @@ public class Controller {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(stage);
         if (selectedDirectory != null) {
+            currentDirectory = selectedDirectory; // Almacena el directorio actual
             File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
             if (files != null) {
                 imageListView.getItems().setAll(files);
+                images.clear();
                 for (File file : files) {
                     loadImageToList(file);
                 }
@@ -630,6 +640,114 @@ public class Controller {
         stage.setMaximized(true); // Make the stage full screen
     }
 
+    public void reconstructFromImages(List<Img> imgList) {
+        images.clear();
+        imageListView.getItems().clear();
+
+        if (imgList == null || imgList.isEmpty()) {
+            GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            tagTreeView.setRoot(new TreeItem<>("Polygons"));
+            currentImg = null;
+            currentImage = null;
+            return;
+        }
+
+        images.addAll(imgList);
+
+        for (Img img : imgList) {
+            File file = new File(currentDirectory, img.getFileName());
+            try {
+                if (file.exists()) {
+                    if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                        String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                        File pngFile = new File(currentDirectory, pngFileName);
+                        if (pngFile.exists()) {
+                            currentImage = new Image(pngFile.toURI().toString());
+                        } else {
+                            tempPngFile = convertJpgToPng(file);
+                            currentImage = new Image(tempPngFile.toURI().toString());
+                            tempPngFile.delete();
+                        }
+                    } else {
+                        currentImage = new Image(file.toURI().toString());
+                    }
+                    imageListView.getItems().add(file);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Cargando imagen: " + img.getFileName());
+        }
+
+        if (!imgList.isEmpty()) {
+            currentImg = imgList.get(0);
+            File file = new File(currentDirectory, currentImg.getFileName());
+            if (file.exists()) {
+                if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                    String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                    File pngFile = new File(currentDirectory, pngFileName);
+                    if (pngFile.exists()) {
+                        currentImage = new Image(pngFile.toURI().toString());
+                    } else {
+                        tempPngFile = convertJpgToPng(file);
+                        currentImage = new Image(tempPngFile.toURI().toString());
+                        tempPngFile.delete();
+                    }
+                } else {
+                    currentImage = new Image(file.toURI().toString());
+                }
+            }
+
+            adjustCanvasSizeToImage();
+            drawImageOnCanvas();
+            updateTreeViewForCurrentImage(currentImg);
+            System.out.println("ya terminé");
+        }
+    }
+
+    private void updateTreeViewForCurrentImage(Img img) {
+        TreeItem<String> rootItem = new TreeItem<>("Polygons");
+        Map<String, TreeItem<String>> categoryMap = new HashMap<>();
+
+        for (String category : categories) {
+            TreeItem<String> categoryItem = new TreeItem<>("Category: " + category);
+            categoryMap.put(category, categoryItem);
+            rootItem.getChildren().add(categoryItem);
+        }
+
+        for (Polygon polygon : img.getPolygons()) {
+            String category = polygon.getCategory();
+            if (category != null && !category.isEmpty()) {
+                TreeItem<String> categoryItem = categoryMap.get(category);
+                if (categoryItem != null) {
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                } else {
+                    categoryItem = new TreeItem<>("Category: " + category);
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                    categoryMap.put(category, categoryItem);
+                    rootItem.getChildren().add(categoryItem);
+                    categories.add(category);
+                }
+            } else {
+                rootItem.getChildren().add(new TreeItem<>(polygon.getName()));
+            }
+        }
+
+        tagTreeView.setRoot(rootItem);
+        rootItem.setExpanded(true);
+        tagTreeView.refresh();
+
+        TreeItem<String> tempCategory = new TreeItem<>("Temporary Category");
+        rootItem.getChildren().add(tempCategory);
+        tagTreeView.refresh();
+        rootItem.getChildren().remove(tempCategory);
+        tagTreeView.refresh();
+    }
+
+
+
+
     // ** Export functions **
 
     /**
@@ -660,9 +778,9 @@ public class Controller {
                 String category = poligono.getCategory();
                 if(category != null){
                     categories tempCategory = new categories(poligono.getCategory());
-                    coco.addCategory(tempCategory.getId() ,tempCategory.getName()); 
+                    coco.addCategory(tempCategory.getId() ,tempCategory.getName());
                 }
-            }   
+            }
             coco.addImage(current);
         }
         // Save the COCO objects to a file
@@ -679,7 +797,6 @@ public class Controller {
     @FXML
     private void handleExportToYolo() {
         // TODO: Implement the export to YOLO format
-        // Uriegas
         if (currentImg == null) {
             Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
             alert.showAndWait();
@@ -698,19 +815,51 @@ public class Controller {
         if (file != null) {
             YOLOManager.saveYolo(file, yoloList);
         }
-
     }
 
     @FXML
     private void handleExportToPascalVOC() {
         // TODO: Implement the export to Pascal VOC format
-        // Cristobal
-        // Aris
     }
 
     @FXML
     private void handleExportToJson() {
-        // TODO: Implement the export to JSON format
-        // Joshua
+        JSON json = new JSON();
+        json.toJson(images);
+    }
+
+    // *** Import functions ***
+    @FXML
+    private void handleImportFromCoco() {
+        // TODO: Implement the import from COCO format
+    }
+
+    @FXML
+    private void handleImportFromYolo() {
+        // TODO: Implement the import from YOLO format
+    }
+
+    @FXML
+    private void handleImportFromPascalVOC() {
+        // TODO: Implement the import from Pascal VOC format
+    }
+
+    @FXML
+    private void handleImportFromJson() {
+        if (images == null || images.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JSON File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        JSON json = new JSON();
+        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
+
+        reconstructFromImages(list);
     }
 }
