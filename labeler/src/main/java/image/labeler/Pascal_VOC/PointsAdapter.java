@@ -6,13 +6,25 @@ import java.util.List;
 
 public class PointsAdapter{
 
-    public static List<XmlPoint> adapter(List<Point> Points){
-        List<XmlPoint> xmlpoints = new ArrayList<>();
+    private PointsAdapter(){}
+
+    public static List<XmlPoints> adapter(List<Point> Points){
+        List<XmlPoints> xmlpoints = new ArrayList<>();
         for (Point point: Points){
-            XmlPoint xmlPoint = new XmlPoint(point);
+            XmlPoints xmlPoint = new XmlPoints(point);
             xmlpoints.add(xmlPoint);
         }
         return xmlpoints;
+    }
+
+    public static List<Point> toPoints(List<XmlPoints> xmlPoints){
+        List <Point> points = new ArrayList<>();
+        for (XmlPoints xmlPoint : xmlPoints){
+            double x = xmlPoint.getX();
+            double y = xmlPoint.getY();
+            points.add(new Point(x, y));
+        }
+        return points;
     }
 
 }

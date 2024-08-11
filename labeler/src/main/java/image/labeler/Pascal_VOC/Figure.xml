@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<annotation>
+    <id>12</id>
+    <name>sonic</name>
+    <width>800</width>
+    <height>600</height>
+    <Objects>
+        <Object>
+            <id>0</id>
+            <name>Mario</name>
+            <category>Admario</category>
+            <Polygon>
+                <Points>
+                    <X>0.0</X>
+                    <Y>0.0</Y>
+                </Points>
+                <Points>
+                    <X>12.0</X>
+                    <Y>14.0</Y>
+                </Points>
+                <Points>
+                    <X>24.0</X>
+                    <Y>35.0</Y>
+                </Points>
+            </Polygon>
+        </Object>
+        <Object>
+            <id>0</id>
+            <Polygon>
+                <Points>
+                    <X>14.0</X>
+                    <Y>13.0</Y>
+                </Points>
+                <Points>
+                    <X>24.0</X>
+                    <Y>35.0</Y>
+                </Points>
+                <Points>
+                    <X>0.0</X>
+                    <Y>9.0</Y>
+                </Points>
+            </Polygon>
+        </Object>
+    </Objects>
+</annotation>

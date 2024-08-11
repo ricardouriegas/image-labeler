@@ -12,6 +12,13 @@ public class Polygon {
         points = new ArrayList<>();
     }
 
+    public Polygon(int id, String name, String category, ArrayList<Point> points) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.points = points;
+    }
+
     public int getId() {
         return id;
     }

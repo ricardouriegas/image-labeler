@@ -21,13 +21,16 @@ public final class PascalvocXml {
     @XmlElement
     private int id;
     @XmlElement
-    private String name;
+    private String name = "null";
     @XmlElement
     private int width;
     @XmlElement
     private int height;
-    @XmlElement(name = "Objects")
+    @XmlElementWrapper(name = "Objects")
+    @XmlElement(name = "Object")
     private List<XmlObjects> Objects;
+
+    public PascalvocXml() {}
 
     private PascalvocXml(Img img) {
         id = img.getId();
@@ -42,21 +45,41 @@ public final class PascalvocXml {
         return instance;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public List<XmlObjects> getObjects() {
+        return Objects;
+    }
 }
 
-@XmlRootElement(name = "Object")
+@XmlAccessorType(XmlAccessType.FIELD)
 final class XmlObjects{
 
-    @XmlTransient
-    private static int num;
     @XmlElement
     private int id;
     @XmlElement
-    private String name;
+    private String name = "null";
     @XmlElement
-    private String category;
+    private String category = "null";
+    @XmlElementWrapper(name = "Polygon")
     @XmlElement(name = "Points")
-    private List<XmlPoint> points;
+    private List<XmlPoints> points;
+
+    public XmlObjects() {}
 
     XmlObjects(Polygon polygon){
         id = polygon.getId();
@@ -65,19 +88,43 @@ final class XmlObjects{
         points = PointsAdapter.adapter(polygon.getPoints());
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public List<XmlPoints> getPoints() {
+        return points;
+    }
 }
 
-@XmlRootElement(name = "Points")
-final class XmlPoint{
+@XmlAccessorType(XmlAccessType.FIELD)
+final class XmlPoints{
 
     @XmlElement(name = "X")
     private double x;
     @XmlElement(name = "Y")
     private double y;
 
-    XmlPoint(Point point){
+    public XmlPoints() {}
+
+    XmlPoints(Point point){
         x = point.getX();
         y = point.getY();
     }
 
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
 }

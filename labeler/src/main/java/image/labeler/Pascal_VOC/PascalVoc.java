@@ -19,18 +19,20 @@ public class PascalVoc {
     /**
      * this method open and parser with an external library Textflow for parser
      * file and make new image object
-     * @param pascalfile
+     * @param file
      * @return
      */
 
-    public static Img openPascalvoc(String pascalfile){
+    public static Img openPascalvoc(File file){
+        Img img = null;
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-        }catch (ParserConfigurationException e){
+            JAXBContext pojo = JAXBContext.newInstance(PascalvocXml.class);
+            Unmarshaller unmarshaller = pojo.createUnmarshaller();
+            img = ImgAdapter.adapter( (PascalvocXml) unmarshaller.unmarshal(file) );
+        }catch (JAXBException e){
             e.printStackTrace();
         }
-        return null;
+        return img;
     }
 
     /**
@@ -42,8 +44,9 @@ public class PascalVoc {
         try{
             JAXBContext jaxbContext = JAXBContext.newInstance(PascalvocXml.class);
             Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             File pascalvoc = new File(routePath);
-            marshaller.marshal(img, pascalvoc);
+            marshaller.marshal(pascalvocXml, pascalvoc);
         }catch (JAXBException e){
             e.printStackTrace();
         }

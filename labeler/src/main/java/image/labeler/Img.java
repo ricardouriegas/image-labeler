@@ -17,6 +17,14 @@ public class Img {
         polygons = new ArrayList<>();
     }
 
+    public Img(String fileName, int width, int height, int id, ArrayList<Polygon> polygons) {
+        this.fileName = fileName;
+        this.width = width;
+        this.height = height;
+        this.id = id;
+        this.polygons = polygons;
+    }
+
     public void addPolygon(Polygon polygon) {
         polygons.add(polygon);
     }
