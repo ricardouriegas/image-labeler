@@ -1,14 +1,8 @@
 package image.labeler.Pascal_VOC;
 
 import image.labeler.Img;
-import image.labeler.Polygon;
 import jakarta.xml.bind.*;
-import jakarta.xml.bind.annotation.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.util.List;
 
 public class PascalVoc {
 

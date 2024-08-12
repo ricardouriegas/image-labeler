@@ -8,7 +8,7 @@
         <Object>
             <id>0</id>
             <name>Mario</name>
-            <category>Admario</category>
+            <category>Character</category>
             <Polygon>
                 <Points>
                     <X>0.0</X>
@@ -26,6 +26,8 @@
         </Object>
         <Object>
             <id>0</id>
+            <name>Sonic</name>
+            <category>Character</category>
             <Polygon>
                 <Points>
                     <X>14.0</X>
