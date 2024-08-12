@@ -73,22 +73,4 @@ public class YOLOManager {
             e.printStackTrace();
         }
     }
-    
-        /**
-     * Method to save the YOLO objects to a file
-     * @param file
-     * @param yoloList
-     * @return
-     */
-    public static void saveYolo(File file, List<YOLO> yoloList) {
-        try {
-            FileWriter writer = new FileWriter(file);
-            for (YOLO yolo : yoloList) {
-                writer.write(yolo.toYOLOFormat() + "\n");
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

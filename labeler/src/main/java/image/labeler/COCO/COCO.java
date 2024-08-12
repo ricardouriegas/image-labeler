@@ -4,9 +4,19 @@ import image.labeler.Img;
 import image.labeler.Polygon;
 import image.labeler.Point;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /**
@@ -14,6 +24,7 @@ import java.io.IOException;
  * of images, annotations, and categories.
  */
 public class COCO {
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private List<Map<String, Object>> images;
     private List<Map<String, Object>> annotations;
     private List<Map<String, Object>> categories;
@@ -250,4 +261,105 @@ public class COCO {
         jsonBuilder.append("]");
     }
     
+    public ArrayList<Img> fromCOCO(String jsonFilePath, ArrayList<Img> imgsFolder) {
+        Type imgListType = new TypeToken<ArrayList<Img>>() {}.getType();
+        
+        ArrayList<Img> imgs = new ArrayList<>();
+        String jsonContent = null;
+
+        try {
+            jsonContent = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    
+        ArrayList<String> mainSegments = new ArrayList<>(List.of("\"images\": ","\"annotations\": ","\"categories\": "));
+        ArrayList<String> segments = splitByWords(jsonContent, mainSegments, false);
+
+        //ANNOTATIONS
+        ArrayList<String> campos = new ArrayList<>(List.of("category_id","bbox","segmentation","id","image_id"));
+        String[] annotations = segments.get(1).split("},",-1);
+
+        for(int i = 0; i < annotations.length; i++){
+            String annotation = annotations[i];
+            annotation = annotation.replace(":","");
+            annotation = annotation.replace("\"","");
+            annotation = annotation.substring(1,annotation.length()-1);
+
+            ArrayList<String> values = splitByWords(annotation, campos, true);
+            for(int j = 1; j < 10; j+=2){
+                String value = values.get(i);
+                if(value.endsWith(",")){
+                    value = value.substring(0, value.length()-1);
+                }
+            }
+        }
+
+        // CATEGORIES
+        campos = new ArrayList<>(List.of("name","id"));
+        String[] categories = segments.get(2).split("},",-1);
+
+        for(int i = 0; i < categories.length; i++){
+            String category = categories[i];
+            category = category.replace(":","");
+            category = category.replace("\"","");
+            category = category.substring(1,category.length()-1);
+
+            ArrayList<String> values = splitByWords(category, campos, true);
+            for(int j = 1; j < 10; j+=2){
+                String value = values.get(i);
+                if(value.endsWith(",")){
+                    value = value.substring(0, value.length()-1);
+                }
+            }
+        }
+        return imgs;    
+    }
+
+    /**
+     * Le hace split a una línea según las palabras dadas.
+     * @param line la linea a splittear
+     * @param words las palabras que van a dividir a la linea
+     * @return Un ArrayList<String> con las palabras divididas sin contener a los divisores
+     * @throws SQLSyntaxException
+     */
+    public static ArrayList<String> splitByWords(String line, ArrayList<String> words, Boolean includeSplittingWords) {
+        ArrayList<String> tokens = new ArrayList<>();
+        String token;
+
+        // Crear un regex pattern a partir de las palabras divisoras
+        StringBuilder patternBuilder = new StringBuilder();
+        for (String word : words) {
+            if (patternBuilder.length() > 0) {
+                patternBuilder.append("|");
+            }
+            patternBuilder.append(Pattern.quote(word));
+        }
+
+        Pattern pattern = Pattern.compile(patternBuilder.toString());
+        Matcher matcher = pattern.matcher(line);
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            if (matcher.start() > lastEnd) {
+                token = line.substring(lastEnd, matcher.start()).trim();
+                if (!token.isEmpty()) {
+                    tokens.add(token);
+                }
+            }
+
+            // agregar la palabra divisora al array de tokens si includeSplittingWords es verdadero
+            if (includeSplittingWords) {
+                tokens.add(matcher.group().trim());
+            }
+
+            lastEnd = matcher.end();
+        }
+
+        if (lastEnd < line.length()) {
+            tokens.add(line.substring(lastEnd).trim());
+        }
+
+        return tokens;
+    }            
 }

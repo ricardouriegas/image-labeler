@@ -832,6 +832,21 @@ public class Controller {
     @FXML
     private void handleImportFromCoco() {
         // TODO: Implement the import from COCO format
+        if (images == null || images.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JSON File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        JSON json = new JSON();
+        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
+
+        reconstructFromImages(list);
     }
 
     @FXML
