@@ -851,7 +851,29 @@ public class Controller {
 
     @FXML
     private void handleImportFromYolo() {
-        // TODO: Implement the import from YOLO format
+        // read YOLO file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open YOLO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        if (file == null) {
+            return;
+        }
+
+        // load the YOLO objects from the file
+        List<YOLO> yoloList = YOLOManager.loadYolo(file);
+
+        // convert the YOLO objects to polygons
+        List<Polygon> polygonList = YOLOManager.toPolygon(yoloList, (int) currentImage.getWidth(), (int) currentImage.getHeight());
+
+        // add the polygons to the current image
+        currentImg.getPolygons().addAll(polygonList);
+
+        // update the tree view
+        updatePolygonList();
+        // draw the polygons on the canvas
+        drawImageOnCanvas();
     }
 
     @FXML

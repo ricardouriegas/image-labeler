@@ -57,6 +57,30 @@ public class YOLOManager {
     }
 
     /**
+     * Method to load the YOLO objects from a file
+     * @param file
+     * @return
+     */
+    public static List<YOLO> loadYolo(File file) {
+        List<YOLO> yoloList = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            for (String line : lines) {
+                String[] parts = line.split(" ");
+                int classId = Integer.parseInt(parts[0]);
+                double x = Double.parseDouble(parts[1]);
+                double y = Double.parseDouble(parts[2]);
+                double width = Double.parseDouble(parts[3]);
+                double height = Double.parseDouble(parts[4]);
+                yoloList.add(new YOLO(classId, x, y, width, height));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return yoloList;
+    }
+
+    /**
      * Method to save the YOLO objects to a file
      * @param file
      * @param yoloList
