@@ -10,7 +10,7 @@ public class ImgAdapter {
     private ImgAdapter(){}
 
     public static Img adapter(PascalvocXml pascalvocXml){
-        int id = pascalvocXml.getId();
+        String id = pascalvocXml.getId();
         String name = pascalvocXml.getName();
         int width = pascalvocXml.getWidth();
         int height = pascalvocXml.getHeight();

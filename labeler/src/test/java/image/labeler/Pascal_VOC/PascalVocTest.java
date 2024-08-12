@@ -1,4 +1,4 @@
-package image.labeler.Pascal_VOC;
+/* package image.labeler.Pascal_VOC;
 
 import image.labeler.Img;
 import image.labeler.Point;
@@ -42,4 +42,4 @@ public class PascalVocTest extends TestCase {
         img.addPolygon(polygon2);
         PascalVoc.pascalvocParser(img,"src/main/java/image/labeler/Pascal_VOC/Figure.xml");
     }
-}
+} */

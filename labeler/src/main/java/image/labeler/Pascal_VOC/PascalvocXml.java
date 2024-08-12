@@ -19,7 +19,7 @@ public final class PascalvocXml {
     @XmlTransient
     private static PascalvocXml instance;
     @XmlElement
-    private int id;
+    private String id;
     @XmlElement
     private String name = "null";
     @XmlElement
@@ -45,7 +45,7 @@ public final class PascalvocXml {
         return instance;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

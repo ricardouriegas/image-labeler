@@ -1,8 +1,9 @@
 package image.labeler;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Polygon {
+public class Polygon implements Serializable {
     private int id;
     private String name;
     private String category;
@@ -49,5 +50,15 @@ public class Polygon {
 
     public void addPoint(Point point) {
         points.add(point);
+    }
+
+    @Override
+    public String toString() {
+        return "Polygon{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", points=" + points +
+                '}';
     }
 }

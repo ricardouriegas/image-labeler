@@ -4,11 +4,12 @@ module image.labeler {
     requires java.desktop;
     requires thumbnailator;
     requires javafx.swing;
-    requires org.eclipse.persistence.moxy;
-
-    opens image.labeler to javafx.fxml, jakarta.xml.bind;
-    exports image.labeler;
+    requires com.google.gson;
     requires jakarta.xml.bind;
+
+    opens image.labeler to javafx.fxml, com.google.gson; // Abrir el paquete a Gson y JavaFX
+    opens image.labeler.JSON to com.google.gson;
+    exports image.labeler;
     opens image.labeler.Pascal_VOC to jakarta.xml.bind;
 }
 

@@ -25,10 +25,17 @@
                <MenuItem text="Save" />
                <MenuItem text="Exit" />
             </Menu>
-            <Menu text="Edit">
-               <MenuItem text="Cut" />
-               <MenuItem text="Copy" />
-               <MenuItem text="Paste" />
+            <Menu text="Export">
+               <MenuItem onAction="#handleExportToYolo" text="Export to YOLO" />
+               <MenuItem onAction="#handleExportToCoco" text="Export to COCO" />
+               <MenuItem onAction="#handleExportToJson" text="Export to JSON" />
+               <MenuItem onAction="#handleExportToPascalVOC" text="Export to Pascal VOC"/>
+            </Menu>
+            <Menu text="Import">
+               <MenuItem onAction="#handleImportFromYolo" text="Import from YOLO" />
+               <MenuItem onAction="#handleImportFromCoco" text="Import from COCO" />
+               <MenuItem onAction="#handleImportFromJson" text="Import from JSON" />
+               <MenuItem onAction="#handleImportFromPascalVOC" text="Import from Pascal VOC"/>
             </Menu>
             <Menu text="Help">
                <MenuItem text="Usage" />
@@ -49,7 +56,7 @@
 
    <!-- canvas que ocupe toda la ventana -->
    <center>
-      <Pane fx:id="canvasPane">
+      <Pane fx:id="canvasPane" style="-fx-background-color: lightgray;">
          <Canvas fx:id="mainCanvas" />
       </Pane>
    </center>

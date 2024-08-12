@@ -1,11 +1,12 @@
 package image.labeler;
 
 import java.util.Objects;
+import java.io.Serializable;
 
 /**
  * Represents a point in 2D space
   */
-public class Point {
+public class Point implements Serializable {
     private final double x; // x-coordinate
     private final double y; // y-coordinate
 
@@ -57,6 +58,18 @@ public class Point {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    /**
+     * Returns a string representation of the point
+     * @return string representation
+      */
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 
 }

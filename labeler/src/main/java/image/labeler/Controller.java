@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,16 +20,29 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
 import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale.Category;
 import java.util.Optional;
 import java.util.Map;
-import javafx.scene.control.Alert;
+
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
+import image.labeler.COCO.COCO;
+// YOLO import
+import image.labeler.YOLO.*;
+import image.labeler.COCO.categories;
+
+// YOLO import
+import image.labeler.YOLO.*;
+
+// JSON import
+import image.labeler.JSON.*;
 
 public class Controller {
 
@@ -41,6 +55,7 @@ public class Controller {
     private Stage stage;
     private Image currentImage;
     private File tempPngFile;
+    private File currentDirectory; // Almacena el path del directorio actual
 
     private ArrayList<Img> images;
     private Img currentImg;
@@ -50,12 +65,12 @@ public class Controller {
     private Point initialPoint;
 
     private static final double CLOSE_DISTANCE = 10.0;
-    private Color[] colors = { 
-        Color.RED, Color.BLUE, 
-        Color.GREEN, Color.ORANGE, 
-        Color.PURPLE, Color.YELLOW,
-        Color.CYAN, Color.MAGENTA,
-        Color.BROWN, Color.PINK
+    private Color[] colors = {
+            Color.RED, Color.BLUE,
+            Color.GREEN, Color.ORANGE,
+            Color.PURPLE, Color.YELLOW,
+            Color.CYAN, Color.MAGENTA,
+            Color.BROWN, Color.PINK
     };
     private int colorIndex = 0;
     private int polygonCounter = 1; // Contador para nombres predeterminados
@@ -137,44 +152,44 @@ public class Controller {
 
     @FXML
     private void handleLoadImage() {
-        if (currentImg != null && (!currentImg.getPolygons().isEmpty() || !currentPolygon.getPoints().isEmpty())) {
-            Alert alert = new Alert(AlertType.CONFIRMATION, "You have unsaved work. Do you want to load a new image and lose the current work?", ButtonType.YES, ButtonType.NO);
-            alert.setTitle("Unsaved Work Warning");
-            alert.setHeaderText(null);
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.YES) {
-                    openDirectory();
-                }
-            });
-        } else {
-            openDirectory();
-        }
+        openDirectory();
     }
 
     private void openDirectory() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(stage);
         if (selectedDirectory != null) {
+            currentDirectory = selectedDirectory; // Almacena el directorio actual
             File[] files = selectedDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg"));
             if (files != null) {
                 imageListView.getItems().setAll(files);
+                images.clear();
+                for (File file : files) {
+                    loadImageToList(file);
+                }
             }
+        }
+    }
+
+    private void loadImageToList(File file) {
+        try {
+            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
+            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
+
+            Img newImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight());
+            images.add(newImg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void loadImage(File file) {
         try {
-            String filePath = file.toURI().toString();
-            BufferedImage bufferedImage = Thumbnails.of(file).size(1920, 1080).asBufferedImage();
-            Image img = SwingFXUtils.toFXImage(bufferedImage, null);
-
             currentImg = images.stream().filter(image -> image.getFileName().equals(file.getName())).findFirst().orElse(null);
-            if (currentImg == null) {
-                currentImg = new Img(file.getName(), (int) img.getWidth(), (int) img.getHeight(), images.size() + 1);
-                images.add(currentImg);
-            }
 
-            if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
+            // Convert JPEG to PNG if necessary
+            if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
                 tempPngFile = convertJpgToPng(file);
                 if (tempPngFile != null)
                     currentImage = new Image(tempPngFile.toURI().toString());
@@ -407,7 +422,7 @@ public class Controller {
             Point p2 = points.get((i + 1) % points.size());
 
             if (((p1.getY() > y) != (p2.getY() > y)) &&
-                (x < (p2.getX() - p1.getX()) * (y - p1.getY()) / (p2.getY() - p1.getY()) + p1.getX())) {
+                    (x < (p2.getX() - p1.getX()) * (y - p1.getY()) / (p2.getY() - p1.getY()) + p1.getX())) {
                 intersectCount++;
             }
         }
@@ -511,7 +526,7 @@ public class Controller {
                     ComboBox<String> comboBox = new ComboBox<>(categories);
                     comboBox.setEditable(true);
                     if (polygonToChangeCategory.getCategory() != null) {
-                        comboBox.setValue(polygonToChangeCategory.getCategory()); 
+                        comboBox.setValue(polygonToChangeCategory.getCategory());
                     }
 
                     Alert categoryDialog = new Alert(AlertType.CONFIRMATION);
@@ -527,7 +542,7 @@ public class Controller {
                         String category = comboBox.getEditor().getText();
                         if (category != null) {
                             if (category.isEmpty()) {
-                                polygonToChangeCategory.setCategory(null); 
+                                polygonToChangeCategory.setCategory(null);
                             } else {
                                 if (!categories.contains(category)) {
                                     categories.add(category);
@@ -623,5 +638,265 @@ public class Controller {
     public void setStage(Stage stage) {
         this.stage = stage;
         stage.setMaximized(true); // Make the stage full screen
+    }
+
+    public void reconstructFromImages(List<Img> imgList) {
+        images.clear();
+        imageListView.getItems().clear();
+
+        if (imgList == null || imgList.isEmpty()) {
+            GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+            tagTreeView.setRoot(new TreeItem<>("Polygons"));
+            currentImg = null;
+            currentImage = null;
+            return;
+        }
+
+        images.addAll(imgList);
+
+        for (Img img : imgList) {
+            File file = new File(currentDirectory, img.getFileName());
+            try {
+                if (file.exists()) {
+                    if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                        String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                        File pngFile = new File(currentDirectory, pngFileName);
+                        if (pngFile.exists()) {
+                            currentImage = new Image(pngFile.toURI().toString());
+                        } else {
+                            tempPngFile = convertJpgToPng(file);
+                            currentImage = new Image(tempPngFile.toURI().toString());
+                            tempPngFile.delete();
+                        }
+                    } else {
+                        currentImage = new Image(file.toURI().toString());
+                    }
+                    imageListView.getItems().add(file);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Cargando imagen: " + img.getFileName());
+        }
+
+        if (!imgList.isEmpty()) {
+            currentImg = imgList.get(0);
+            File file = new File(currentDirectory, currentImg.getFileName());
+            if (file.exists()) {
+                if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                    String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                    File pngFile = new File(currentDirectory, pngFileName);
+                    if (pngFile.exists()) {
+                        currentImage = new Image(pngFile.toURI().toString());
+                    } else {
+                        tempPngFile = convertJpgToPng(file);
+                        currentImage = new Image(tempPngFile.toURI().toString());
+                        tempPngFile.delete();
+                    }
+                } else {
+                    currentImage = new Image(file.toURI().toString());
+                }
+            }
+
+            adjustCanvasSizeToImage();
+            drawImageOnCanvas();
+            updateTreeViewForCurrentImage(currentImg);
+            System.out.println("ya terminé");
+        }
+    }
+
+    private void updateTreeViewForCurrentImage(Img img) {
+        TreeItem<String> rootItem = new TreeItem<>("Polygons");
+        Map<String, TreeItem<String>> categoryMap = new HashMap<>();
+
+        for (String category : categories) {
+            TreeItem<String> categoryItem = new TreeItem<>("Category: " + category);
+            categoryMap.put(category, categoryItem);
+            rootItem.getChildren().add(categoryItem);
+        }
+
+        for (Polygon polygon : img.getPolygons()) {
+            String category = polygon.getCategory();
+            if (category != null && !category.isEmpty()) {
+                TreeItem<String> categoryItem = categoryMap.get(category);
+                if (categoryItem != null) {
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                } else {
+                    categoryItem = new TreeItem<>("Category: " + category);
+                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
+                    categoryMap.put(category, categoryItem);
+                    rootItem.getChildren().add(categoryItem);
+                    categories.add(category);
+                }
+            } else {
+                rootItem.getChildren().add(new TreeItem<>(polygon.getName()));
+            }
+        }
+
+        tagTreeView.setRoot(rootItem);
+        rootItem.setExpanded(true);
+        tagTreeView.refresh();
+
+        TreeItem<String> tempCategory = new TreeItem<>("Temporary Category");
+        rootItem.getChildren().add(tempCategory);
+        tagTreeView.refresh();
+        rootItem.getChildren().remove(tempCategory);
+        tagTreeView.refresh();
+    }
+
+
+
+
+    // ** Export functions **
+
+    /**
+     * Ok, una vez en este punto, tengan en cuenta que lo que van a tener
+     * que exportar es el ArrayList<Img> images, que contiene todas las imágenes
+     * con sus respectivos polígonos.
+     *
+     * De esta clase Img pueden obtener su nombre, ancho, alto, id y polígonos.
+     * A su vez, de cada polígono pueden obtener su nombre (del polígono), categoría y puntos.
+     * Cada punto a su vez tiene las coordenadas x e y.
+     *
+     * Usen estos datos para exportar a los formatos que les toque.
+     * Piensen también en el proceso inverso, recuerden que también debemos poder cargar estos archivos
+     * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist
+     * de imágenes, pero de ustedes depende darme ese array.
+     */
+
+    @FXML
+    private void handleExportToCoco() {
+        // TODO: Implement the export to COCO format
+        // Wichoboy
+        // Alan
+        // Guijarro
+        // Morinek
+        COCO coco = new COCO();
+        for(Img current : images){
+            for(Polygon poligono : current.getPolygons()){
+                String category = poligono.getCategory();
+                if(category != null){
+                    categories tempCategory = new categories(poligono.getCategory());
+                    coco.addCategory(tempCategory.getId() ,tempCategory.getName());
+                }
+            }
+            coco.addImage(current);
+        }
+        // Save the COCO objects to a file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save COCO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("COCO Files", "*.json"));
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            coco.exportToJson(file.getAbsolutePath());
+        }
+    }
+
+    @FXML
+    private void handleExportToYolo() {
+        // TODO: Implement the export to YOLO format
+        if (currentImg == null) {
+            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        // Convert the polygons of the current image to YOLO format
+        List<YOLO> yoloList = YOLOManager.toYolo(currentImg.getPolygons(), (int) currentImage.getWidth(), (int) currentImage.getHeight());
+
+        // Save the YOLO objects to a file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save YOLO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            YOLOManager.saveYolo(file, yoloList);
+        }
+    }
+
+    @FXML
+    private void handleExportToPascalVOC() {
+        // TODO: Implement the export to Pascal VOC format
+    }
+
+    @FXML
+    private void handleExportToJson() {
+        JSON json = new JSON();
+        json.toJson(images);
+    }
+
+    // *** Import functions ***
+    @FXML
+    private void handleImportFromCoco() {
+        // TODO: Implement the import from COCO format
+        if (images == null || images.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JSON File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        JSON json = new JSON();
+        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
+
+        reconstructFromImages(list);
+    }
+
+    @FXML
+    private void handleImportFromYolo() {
+        // read YOLO file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open YOLO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        if (file == null) {
+            return;
+        }
+
+        // load the YOLO objects from the file
+        List<YOLO> yoloList = YOLOManager.loadYolo(file);
+
+        // convert the YOLO objects to polygons
+        List<Polygon> polygonList = YOLOManager.toPolygon(yoloList, (int) currentImage.getWidth(), (int) currentImage.getHeight());
+
+        // add the polygons to the current image
+        currentImg.getPolygons().addAll(polygonList);
+
+        // update the tree view
+        updatePolygonList();
+        // draw the polygons on the canvas
+        drawImageOnCanvas();
+    }
+
+    @FXML
+    private void handleImportFromPascalVOC() {
+        // TODO: Implement the import from Pascal VOC format
+    }
+
+    @FXML
+    private void handleImportFromJson() {
+        if (images == null || images.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JSON File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        JSON json = new JSON();
+        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
+
+        reconstructFromImages(list);
     }
 }

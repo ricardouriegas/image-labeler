@@ -4,3 +4,8 @@
 # Notes
 - The JavaFX implementation that I coded **doesn't allow** images in `.jpg` and `.jpeg`, so I added a function to convert those files in `.png` files in compilation time.
 
+# Instalattion of GSON: 
+```bash
+mvn install:install-file -Dfile=/home/jarrazola/Documents/image-labeler/gson-2.11.0.jar -DgroupId=com.google.code.gson -DartifactId=gson -Dversion=2.11.0 -Dpackaging=jar
+```
+Remember to change the path to your **absolute path**.
