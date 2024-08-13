@@ -1,0 +1,66 @@
+/* General Styles */
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #f7f7f7;
+}
+
+/* MenuBar Styles */
+.menu-bar {
+    -fx-background-color: #546e7a;
+    -fx-text-fill: #ffffff;
+}
+
+.menu-bar .menu {
+    -fx-text-fill: #ffffff;
+}
+
+.menu-bar .menu-item {
+    -fx-text-fill: #ffffff;
+}
+
+.menu-bar .menu:hover {
+    -fx-background-color: #78909c;
+}
+
+/* Button Styles */
+.button {
+    -fx-background-color: #42a5f5;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
+}
+
+.button:hover {
+    -fx-background-color: #2196f3;
+}
+
+.button:pressed {
+    -fx-background-color: #1976d2;
+}
+
+/* TreeView Styles */
+.tree-view {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: #90a4ae;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+    -fx-control-inner-background: #ffffff;
+    -fx-selection-bar: #42a5f5;
+    -fx-selection-bar-text: white;
+}
+
+/* Canvas Pane Styles */
+#canvasPane {
+    -fx-background-color: #cfd8dc;
+}
+
+/* ListView Styles */
+.list-view {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: #90a4ae;
+    -fx-border-radius: 5;
+    -fx-control-inner-background: #ffffff;
+    -fx-selection-bar: #42a5f5;
+    -fx-selection-bar-text: white;
+}

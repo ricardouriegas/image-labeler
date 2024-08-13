@@ -55,7 +55,7 @@ public class Controller {
     private Stage stage;
     private Image currentImage;
     private File tempPngFile;
-    private File currentDirectory; // Almacena el path del directorio actual
+    private File currentDirectory; // !Almacena el path del directorio actual
 
     private ArrayList<Img> images;
     private Img currentImg;
@@ -392,6 +392,7 @@ public class Controller {
     private void handleTreeItemClick(MouseEvent event) {
         TreeItem<String> selectedItem = tagTreeView.getSelectionModel().getSelectedItem();
         if (selectedItem != null && !selectedItem.getValue().startsWith("Category: ")) {
+            if(currentImage == null) return;
             String polygonName = selectedItem.getValue();
             for (Polygon polygon : currentImg.getPolygons()) {
                 if (polygon.getName().equals(polygonName)) {
@@ -826,6 +827,12 @@ public class Controller {
 
     @FXML
     private void handleExportToJson() {
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        
         JSON json = new JSON();
         json.toJson(images);
     }
@@ -853,15 +860,18 @@ public class Controller {
 
     @FXML
     private void handleImportFromYolo() {
+        // check if images are loaded, if not show an error message
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        
         // read YOLO file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open YOLO File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
         File file = fileChooser.showOpenDialog(stage);
-
-        if (file == null) {
-            return;
-        }
 
         // load the YOLO objects from the file
         List<YOLO> yoloList = YOLOManager.loadYolo(file);

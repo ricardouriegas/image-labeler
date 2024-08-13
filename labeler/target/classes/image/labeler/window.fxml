@@ -14,17 +14,17 @@
 <?import javafx.scene.layout.Priority?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
-   xmlns:fx="http://javafx.com/fxml/1" fx:controller="image.labeler.Controller">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="image.labeler.Controller" stylesheets="@styles.css">
    <!-- menú superior -->
    <top>
       <HBox>
          <MenuBar>
-            <Menu text="File">
+            <!-- <Menu text="File">
                <MenuItem text="New" />
                <MenuItem text="Open" />
                <MenuItem text="Save" />
                <MenuItem text="Exit" />
-            </Menu>
+            </Menu> -->
             <Menu text="Export">
                <MenuItem onAction="#handleExportToYolo" text="Export to YOLO" />
                <MenuItem onAction="#handleExportToCoco" text="Export to COCO" />
@@ -43,7 +43,7 @@
             </Menu>
          </MenuBar>
          <Pane HBox.hgrow="ALWAYS" />
-         <Button text="Cargar Imagen" fx:id="loadImageButton" onAction="#handleLoadImage"/>
+         <Button text="Load dataset" fx:id="loadImageButton" onAction="#handleLoadImage"/>
       </HBox>
    </top>
 
