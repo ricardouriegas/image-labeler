@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import image.labeler.Pascal_VOC.PascalVoc;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -819,7 +821,21 @@ public class Controller {
 
     @FXML
     private void handleExportToPascalVOC() {
-        // TODO: Implement the export to Pascal VOC format
+        if (currentImg == null) {
+            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            alert.show();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save PASCAL VOC File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PASCAL-VOC Files", "*.xml"));
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (!file.exists()){
+            PascalVoc.pascalvocParser(currentImg,file.getAbsolutePath());
+        }
+
     }
 
     @FXML
@@ -878,7 +894,22 @@ public class Controller {
 
     @FXML
     private void handleImportFromPascalVOC() {
-        // TODO: Implement the import from Pascal VOC format
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Pascal Voc File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Pascal Voc Files", "*.xml"));
+        File file = fileChooser.showOpenDialog(stage);
+        Img img = null;
+
+        if (file != null) {
+           img = PascalVoc.openPascalvoc(file);
+        }
+        // ADD
+        currentImg.getPolygons().addAll((List<Polygon>) img.getPolygons());
+
+        updatePolygonList();
+
+        drawImageOnCanvas();
+
     }
 
     @FXML
