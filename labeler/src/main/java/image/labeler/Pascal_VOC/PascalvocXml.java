@@ -19,6 +19,8 @@ public final class PascalvocXml {
     @XmlTransient
     private static PascalvocXml instance;
     @XmlElement
+    private String filepath;
+    @XmlElement
     private String id;
     @XmlElement
     private String name = "null";
@@ -32,7 +34,8 @@ public final class PascalvocXml {
 
     public PascalvocXml() {}
 
-    private PascalvocXml(Img img) {
+    private PascalvocXml(Img img, String filepath) {
+        this.filepath = filepath;
         id = img.getId();
         name = img.getFileName();
         width = img.getWidth();
@@ -41,7 +44,7 @@ public final class PascalvocXml {
     }
 
     public static PascalvocXml instance(Img img){
-        instance = instance == null ? new PascalvocXml(img) : instance;
+        instance = instance == null ? new PascalvocXml(img,instance.filepath) : instance;
         return instance;
     }
 
