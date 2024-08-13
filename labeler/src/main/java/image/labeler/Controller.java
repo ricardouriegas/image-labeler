@@ -643,109 +643,111 @@ public class Controller {
     public void reconstructFromImages(List<Img> imgList) {
         images.clear();
         imageListView.getItems().clear();
-
+        categories.clear(); // Aseguramos que se empiece de una lista limpia
+    
         if (imgList == null || imgList.isEmpty()) {
-            GraphicsContext gc = mainCanvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
-            tagTreeView.setRoot(new TreeItem<>("Polygons"));
-            currentImg = null;
-            currentImage = null;
+            clearCanvasAndTreeView();
             return;
         }
-
+    
         images.addAll(imgList);
-
+    
         for (Img img : imgList) {
             File file = new File(currentDirectory, img.getFileName());
             try {
                 if (file.exists()) {
-                    if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
-                        String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
-                        File pngFile = new File(currentDirectory, pngFileName);
-                        if (pngFile.exists()) {
-                            currentImage = new Image(pngFile.toURI().toString());
-                        } else {
-                            tempPngFile = convertJpgToPng(file);
-                            currentImage = new Image(tempPngFile.toURI().toString());
-                            tempPngFile.delete();
-                        }
-                    } else {
-                        currentImage = new Image(file.toURI().toString());
-                    }
-                    imageListView.getItems().add(file);
+                    loadImageFromFile(file);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Cargando imagen: " + img.getFileName());
-        }
-
-        if (!imgList.isEmpty()) {
-            currentImg = imgList.get(0);
-            File file = new File(currentDirectory, currentImg.getFileName());
-            if (file.exists()) {
-                if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
-                    String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
-                    File pngFile = new File(currentDirectory, pngFileName);
-                    if (pngFile.exists()) {
-                        currentImage = new Image(pngFile.toURI().toString());
-                    } else {
-                        tempPngFile = convertJpgToPng(file);
-                        currentImage = new Image(tempPngFile.toURI().toString());
-                        tempPngFile.delete();
-                    }
-                } else {
-                    currentImage = new Image(file.toURI().toString());
+    
+            // Procesamos las categorías de cada polígono en la imagen
+            for (Polygon polygon : img.getPolygons()) {
+                String category = polygon.getCategory();
+                if (category != null && !category.isEmpty() && !categories.contains(category)) {
+                    categories.add(category); // Agregamos la categoría si no existe
                 }
             }
-
-            adjustCanvasSizeToImage();
-            drawImageOnCanvas();
-            updateTreeViewForCurrentImage(currentImg);
-            System.out.println("ya terminé");
+        }
+    
+        if (!imgList.isEmpty()) {
+            currentImg = imgList.get(0);
+            updateCurrentImageAndTreeView();
         }
     }
-
+    
+    private void clearCanvasAndTreeView() {
+        GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+        tagTreeView.setRoot(new TreeItem<>("Polygons"));
+        currentImg = null;
+        currentImage = null;
+    }
+    
+    private void loadImageFromFile(File file) throws IOException {
+        if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+            String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+            File pngFile = new File(currentDirectory, pngFileName);
+            if (pngFile.exists()) {
+                currentImage = new Image(pngFile.toURI().toString());
+            } else {
+                tempPngFile = convertJpgToPng(file);
+                currentImage = new Image(tempPngFile.toURI().toString());
+                tempPngFile.delete();
+            }
+        } else {
+            currentImage = new Image(file.toURI().toString());
+        }
+        imageListView.getItems().add(file);
+    }
+    
+    private void updateCurrentImageAndTreeView() {
+        File file = new File(currentDirectory, currentImg.getFileName());
+        if (file.exists()) {
+            if (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".jpeg")) {
+                String pngFileName = file.getName().replaceAll("(?i)\\.(jpg|jpeg)$", ".png");
+                File pngFile = new File(currentDirectory, pngFileName);
+                if (pngFile.exists()) {
+                    currentImage = new Image(pngFile.toURI().toString());
+                } else {
+                    tempPngFile = convertJpgToPng(file);
+                    currentImage = new Image(tempPngFile.toURI().toString());
+                    tempPngFile.delete();
+                }
+            } else {
+                currentImage = new Image(file.toURI().toString());
+            }
+        }
+    
+        adjustCanvasSizeToImage();
+        drawImageOnCanvas();
+        updateTreeViewForCurrentImage(currentImg);
+    }
+    
     private void updateTreeViewForCurrentImage(Img img) {
         TreeItem<String> rootItem = new TreeItem<>("Polygons");
         Map<String, TreeItem<String>> categoryMap = new HashMap<>();
-
-        for (String category : categories) {
-            TreeItem<String> categoryItem = new TreeItem<>("Category: " + category);
-            categoryMap.put(category, categoryItem);
-            rootItem.getChildren().add(categoryItem);
-        }
-
+    
         for (Polygon polygon : img.getPolygons()) {
             String category = polygon.getCategory();
             if (category != null && !category.isEmpty()) {
                 TreeItem<String> categoryItem = categoryMap.get(category);
-                if (categoryItem != null) {
-                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
-                } else {
+                if (categoryItem == null) {
                     categoryItem = new TreeItem<>("Category: " + category);
-                    categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
                     categoryMap.put(category, categoryItem);
                     rootItem.getChildren().add(categoryItem);
-                    categories.add(category);
                 }
+                categoryItem.getChildren().add(new TreeItem<>(polygon.getName()));
             } else {
                 rootItem.getChildren().add(new TreeItem<>(polygon.getName()));
             }
         }
-
+    
         tagTreeView.setRoot(rootItem);
         rootItem.setExpanded(true);
         tagTreeView.refresh();
-
-        TreeItem<String> tempCategory = new TreeItem<>("Temporary Category");
-        rootItem.getChildren().add(tempCategory);
-        tagTreeView.refresh();
-        rootItem.getChildren().remove(tempCategory);
-        tagTreeView.refresh();
     }
-
-
 
 
     // ** Export functions **

@@ -1,4 +1,0 @@
---patch-module
-image.labeler=_
---add-reads
-image.labeler=ALL-UNNAMED
