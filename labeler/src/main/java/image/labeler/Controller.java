@@ -765,6 +765,7 @@ public class Controller {
      * de imágenes, pero de ustedes depende darme ese array.
      */
 
+     /* 
     @FXML
     private void handleExportToCoco() {
         // TODO: Implement the export to COCO format
@@ -793,6 +794,7 @@ public class Controller {
             coco.exportToJson(file.getAbsolutePath());
         }
     }
+    */
 
     @FXML
     private void handleExportToYolo() {
@@ -829,6 +831,7 @@ public class Controller {
     }
 
     // *** Import functions ***
+    /*
     @FXML
     private void handleImportFromCoco() {
         // TODO: Implement the import from COCO format
@@ -848,6 +851,7 @@ public class Controller {
 
         reconstructFromImages(list);
     }
+    */
 
     @FXML
     private void handleImportFromYolo() {

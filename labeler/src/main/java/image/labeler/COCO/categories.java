@@ -8,11 +8,6 @@ public class categories {
     String id;
     String name;
 
-    /**
-     * This constructor should be able to create a categorie object from the parameters
-     * @param id
-     * @param name
-     */
     public categories(String name) {
         this.id = generateId(name);
         this.name = name;
@@ -28,11 +23,11 @@ public class categories {
 
     public String generateId(String name) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5"); // MD5 hash function
-            byte[] messageDigest = md.digest(name.getBytes()); // generate hash
-            BigInteger no = new BigInteger(1, messageDigest); // convert byte array to signum representation
-            String hashText = no.toString(16); // convert message digest to hex value
-            while (hashText.length() < 32) // add leading zeros to make it 32 bit
+            MessageDigest md = MessageDigest.getInstance("MD5"); 
+            byte[] messageDigest = md.digest(name.getBytes()); 
+            BigInteger no = new BigInteger(1, messageDigest); 
+            String hashText = no.toString(16); 
+            while (hashText.length() < 32)
                 hashText = "0" + hashText;
             return hashText;
         } catch (NoSuchAlgorithmException e) {
@@ -42,5 +37,13 @@ public class categories {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "categories{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
