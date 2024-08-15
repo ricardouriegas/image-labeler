@@ -12,9 +12,9 @@ import java.util.Objects;
 /**
  * Singel Tone Class creada para proporcionar para serializar
  */
-@XmlRootElement(name = "annotation")
+
 @XmlAccessorType(XmlAccessType.FIELD)
-public final class PascalvocXml {
+@XmlRootElement(name = "annotation") public final class PascalvocXml {
 
     @XmlTransient
     private static PascalvocXml instance;
@@ -44,7 +44,7 @@ public final class PascalvocXml {
     }
 
     public static PascalvocXml instance(Img img){
-        instance = instance == null ? new PascalvocXml(img,instance.filepath) : instance;
+        instance = instance != null ? new PascalvocXml(img,instance.filepath) : new PascalvocXml(img,null);
         return instance;
     }
 
