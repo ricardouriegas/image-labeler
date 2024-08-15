@@ -3,8 +3,7 @@ package image.labeler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import image.labeler.Pascal_VOC.PascalVoc;
 import javafx.collections.FXCollections;
@@ -27,11 +26,9 @@ import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
 import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Locale.Category;
-import java.util.Optional;
-import java.util.Map;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
@@ -906,22 +903,35 @@ public class Controller {
 
     @FXML
     private void handleImportFromPascalVOC() {
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Pascal Voc File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Pascal Voc Files", "*.xml"));
         File file = fileChooser.showOpenDialog(stage);
-        Img img = null;
 
         if (file != null) {
-           img = PascalVoc.openPascalvoc(file);
+            Img img = PascalVoc.openPascalvoc(file);
+
+            if(!Objects.equals(img.getId(), currentImg.getId())){
+                Alert alert = new Alert(AlertType.ERROR, "Image id mismatch in Pascal Voc File", ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+
+            currentImg.getPolygons().addAll(img.getPolygons());
+
+            for(Polygon polygon : currentImg.getPolygons()){
+                categories.add(polygon.getCategory());
+            }
+
+            updatePolygonList();
+            drawImageOnCanvas();
         }
-        // ADD
-        currentImg.getPolygons().addAll((List<Polygon>) img.getPolygons());
-
-        updatePolygonList();
-
-        drawImageOnCanvas();
-
     }
 
     @FXML
