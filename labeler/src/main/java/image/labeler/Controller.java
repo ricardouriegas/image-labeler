@@ -33,14 +33,10 @@ import java.util.Map;
 
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
-import image.labeler.COCO.COCO;
-// YOLO import
-import image.labeler.YOLO.*;
-import image.labeler.COCO.categories;
 
 // YOLO import
 import image.labeler.YOLO.*;
-
+import image.labeler.COCO.CocoParser;
 // JSON import
 import image.labeler.JSON.*;
 
@@ -765,36 +761,25 @@ public class Controller {
      * de imágenes, pero de ustedes depende darme ese array.
      */
 
-     /* 
+     
     @FXML
     private void handleExportToCoco() {
-        // TODO: Implement the export to COCO format
-        // Wichoboy
-        // Alan
-        // Guijarro
-        // Morinek
-        COCO coco = new COCO();
-        for(Img current : images){
-            for(Polygon poligono : current.getPolygons()){
-                String category = poligono.getCategory();
-                if(category != null){
-                    categories tempCategory = new categories(poligono.getCategory());
-                    coco.addCategory(tempCategory.getId() ,tempCategory.getName());
-                }
-            }
-            coco.addImage(current);
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
         }
-        // Save the COCO objects to a file
+
+        // Convert the images to COCO format
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save COCO File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("COCO Files", "*.json"));
         File file = fileChooser.showSaveDialog(stage);
 
-        if (file != null) {
-            coco.exportToJson(file.getAbsolutePath());
-        }
+        CocoParser cocoParser = new CocoParser();
+        cocoParser.parse(images, file);
     }
-    */
+   
 
     @FXML
     private void handleExportToYolo() {
@@ -831,27 +816,12 @@ public class Controller {
     }
 
     // *** Import functions ***
-    /*
+    
     @FXML
     private void handleImportFromCoco() {
-        // TODO: Implement the import from COCO format
-        if (images == null || images.isEmpty()) {
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
-            return;
-        }
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open JSON File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-        File file = fileChooser.showOpenDialog(stage);
-
-        JSON json = new JSON();
-        ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
-
-        reconstructFromImages(list);
     }
-    */
+   
 
     @FXML
     private void handleImportFromYolo() {

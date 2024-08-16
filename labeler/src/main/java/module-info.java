@@ -8,5 +8,7 @@ module image.labeler {
 
     opens image.labeler to javafx.fxml, com.google.gson; // Abrir el paquete a Gson y JavaFX
     opens image.labeler.JSON to com.google.gson;
+    opens image.labeler.COCO to com.google.gson;
+    opens image.labeler.COCO.coco_objects to com.google.gson;
     exports image.labeler;
 }
