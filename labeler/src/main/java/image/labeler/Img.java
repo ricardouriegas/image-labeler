@@ -27,6 +27,14 @@ public class Img {
         polygons = new ArrayList<>();
     }
 
+    public Img(String fileName, int width, String id, int height) {
+        this.fileName = fileName;
+        this.width = width;
+        this.height = height;
+        this.id = id;
+        polygons = new ArrayList<>();
+    }
+
     /**
      * MD5 hash function to generate unique id for image
      * @param input - file name

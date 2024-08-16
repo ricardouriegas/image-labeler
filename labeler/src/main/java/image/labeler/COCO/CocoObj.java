@@ -1,26 +1,25 @@
 package image.labeler.COCO;
 
 import java.util.ArrayList;
-import java.util.List;
 import image.labeler.COCO.coco_objects.*;
 
 /**
  *  Class to represent a COCO object
   */
 public class CocoObj {
-    private List<ImgCoco> images = new ArrayList<>();
-    private List<Annotation> annotations = new ArrayList<>();
-    private List<Category> categories = new ArrayList<>();
+    private ArrayList<ImgCoco> images = new ArrayList<>();
+    private ArrayList<Annotation> annotations = new ArrayList<>();
+    private ArrayList<Category> categories = new ArrayList<>();
 
-    public List<ImgCoco> getImages() {
+    public ArrayList<ImgCoco> getImages() {
         return images;
     }
 
-    public List<Annotation> getAnnotations() {
+    public ArrayList<Annotation> getAnnotations() {
         return annotations;
     }
 
-    public List<Category> getCategories() {
+    public ArrayList<Category> getCategories() {
         return categories;
     }
 
@@ -36,15 +35,15 @@ public class CocoObj {
         categories.add(category);
     }
 
-    public void setImages(List<ImgCoco> images) {
+    public void setImages(ArrayList<ImgCoco> images) {
         this.images = images;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(ArrayList<Annotation> annotations) {
         this.annotations = annotations;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(ArrayList<Category> categories) {
         this.categories = categories;
     }
 }

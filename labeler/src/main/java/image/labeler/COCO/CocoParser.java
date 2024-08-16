@@ -6,7 +6,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.HashMap;
 import image.labeler.Img;
 import image.labeler.Point;
 import image.labeler.Polygon;
@@ -53,7 +57,16 @@ public class CocoParser {
         ArrayList<Category> categories = getCategories(images);
         cocoObj.setCategories(categories);
 
-        System.out.println(gson.toJson(cocoObj));
+        String json = gson.toJson(cocoObj);
+
+        if(!file.getName().endsWith(".json"))
+            file = new File(file.getAbsolutePath() + ".json");
+        
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
+            writer.write(json);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private ArrayList<Annotation> getAnnotations(ArrayList<Img> images) {
@@ -134,4 +147,39 @@ public class CocoParser {
 
         return categories;
     }
+
+    // ---- IMPORT FUNCTION ----
+
+    public ArrayList<Img> importCoco(File file) {
+        ArrayList<Img> images = new ArrayList<>();
+        
+        String path = file.getAbsolutePath();
+        CocoObj cocoObj = gson.fromJson(path, CocoObj.class);
+
+        HashMap<String, String> categories = new HashMap<>(); // category_id -> category_name
+        for(Category category : cocoObj.getCategories())
+            categories.put(category.getId(), category.getName());
+
+        ArrayList<ImgCoco> imgCocos = cocoObj.getImages();
+        HashMap<String, Img> img_map = new HashMap<>(); // image_id -> Img
+
+        for(ImgCoco imgCoco : imgCocos){
+            Img img = new Img(imgCoco.getFile_name(), imgCoco.getWidth(), imgCoco.getId(), imgCoco.getHeight());
+            img_map.put(img.getId(), img);
+            images.add(img);
+        }
+
+        for(Annotation annotation : cocoObj.getAnnotations()){
+            String category = "";
+            if(categories.containsKey(annotation.getCategory_id()))
+                category = categories.get(annotation.getCategory_id());
+            else
+                category = "";
+            
+            
+        }
+
+        return images;
+    }
+
 }

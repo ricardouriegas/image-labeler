@@ -6,153 +6,55 @@
         "name": "Polygon 1",
         "points": [
           {
-            "x": 391.0,
-            "y": 358.0
+            "x": 488.0,
+            "y": 268.0
           },
           {
-            "x": 444.0,
-            "y": 436.0
+            "x": 644.0,
+            "y": 305.0
           },
           {
-            "x": 474.0,
-            "y": 395.0
+            "x": 452.0,
+            "y": 393.0
           },
           {
-            "x": 391.0,
-            "y": 358.0
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "Polygon 2",
-        "points": [
-          {
-            "x": 655.0,
-            "y": 362.0
-          },
-          {
-            "x": 675.0,
-            "y": 435.0
-          },
-          {
-            "x": 593.0,
-            "y": 445.0
-          },
-          {
-            "x": 655.0,
-            "y": 362.0
+            "x": 488.0,
+            "y": 268.0
           }
         ]
       }
     ],
-    "fileName": "imagen.jpg",
-    "width": 1080,
+    "fileName": "pngimg.com - mario_PNG125.png",
+    "width": 1180,
     "height": 1080,
-    "id": "7040d9de8055076f3c9eea2179c6b2bd"
+    "id": "f0eeabcf023b367a4b83de54b284c986"
   },
   {
-    "polygons": [
-      {
-        "id": 1,
-        "name": "Polygon 1",
-        "points": [
-          {
-            "x": 489.0,
-            "y": 338.0
-          },
-          {
-            "x": 385.0,
-            "y": 534.0
-          },
-          {
-            "x": 690.0,
-            "y": 514.0
-          },
-          {
-            "x": 489.0,
-            "y": 338.0
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "Polygon 2",
-        "points": [
-          {
-            "x": 166.0,
-            "y": 336.0
-          },
-          {
-            "x": 123.0,
-            "y": 621.0
-          },
-          {
-            "x": 174.0,
-            "y": 330.0
-          },
-          {
-            "x": 166.0,
-            "y": 336.0
-          }
-        ]
-      }
-    ],
-    "fileName": "shrek.jpg",
-    "width": 1080,
+    "polygons": [],
+    "fileName": "NewTux.png",
+    "width": 907,
     "height": 1080,
-    "id": "d8bb774098f8f69af62802006268ee15"
+    "id": "ac88bda1fd0bde4d882f67473f249e31"
   },
   {
-    "polygons": [
-      {
-        "id": 1,
-        "name": "Polygon 1",
-        "points": [
-          {
-            "x": 336.0,
-            "y": 367.0
-          },
-          {
-            "x": 346.0,
-            "y": 730.0
-          },
-          {
-            "x": 1048.0,
-            "y": 337.0
-          },
-          {
-            "x": 336.0,
-            "y": 367.0
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "Polygon 2",
-        "points": [
-          {
-            "x": 1049.0,
-            "y": 337.0
-          },
-          {
-            "x": 347.0,
-            "y": 730.0
-          },
-          {
-            "x": 1015.0,
-            "y": 708.0
-          },
-          {
-            "x": 1049.0,
-            "y": 337.0
-          }
-        ]
-      }
-    ],
-    "fileName": "morin.jpg",
-    "width": 1326,
+    "polygons": [],
+    "fileName": "723px-The_death.png",
+    "width": 1017,
     "height": 1080,
-    "id": "f1454f3c2a64e2b6cb7bb91c1e13bc10"
+    "id": "bc467dd51b81da86091550efea79bd91"
+  },
+  {
+    "polygons": [],
+    "fileName": "boat.png",
+    "width": 1852,
+    "height": 1080,
+    "id": "afc46b069e7e131d7e15e125061ed8fe"
+  },
+  {
+    "polygons": [],
+    "fileName": "png-transparent-spider-man-heroes-download-with-transparent-background-free-thumbnail.png",
+    "width": 1193,
+    "height": 1080,
+    "id": "bd072f28af097496fd85adda57ed19b8"
   }
 ]

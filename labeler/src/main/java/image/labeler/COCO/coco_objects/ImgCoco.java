@@ -2,11 +2,11 @@ package image.labeler.COCO.coco_objects;
 
 public class ImgCoco {
     private final String file_name;
-    private final double width;
+    private final int width;
     private final String id;
-    private final double height;
+    private final int height;
 
-    public ImgCoco(String file_name, double width, String id, double height) {
+    public ImgCoco(String file_name, int width, String id, int height) {
         this.file_name = file_name;
         this.width = width;
         this.id = id;
@@ -17,7 +17,7 @@ public class ImgCoco {
         return file_name;
     }
 
-    public double getWidth() {
+    public int getWidth() {
         return width;
     }
 
@@ -25,7 +25,7 @@ public class ImgCoco {
         return id;
     }
 
-    public double getHeight() {
+    public int getHeight() {
         return height;
     }
 }
