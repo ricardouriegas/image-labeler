@@ -46,4 +46,13 @@ public class CocoObj {
     public void setCategories(ArrayList<Category> categories) {
         this.categories = categories;
     }
+
+    @Override   
+    public String toString() {
+        return "CocoObj{" +
+                "images=" + images +
+                ", annotations=" + annotations +
+                ", categories=" + categories +
+                '}';
+    }
 }

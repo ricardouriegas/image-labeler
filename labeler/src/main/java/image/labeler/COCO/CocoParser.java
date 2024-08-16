@@ -11,6 +11,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import image.labeler.Img;
 import image.labeler.Point;
 import image.labeler.Polygon;
@@ -150,36 +153,63 @@ public class CocoParser {
 
     // ---- IMPORT FUNCTION ----
 
-    public ArrayList<Img> importCoco(File file) {
+    public ArrayList<Img> importCoco(File file, ArrayList<Img> actualFolderImg) {
         ArrayList<Img> images = new ArrayList<>();
-        
-        String path = file.getAbsolutePath();
-        CocoObj cocoObj = gson.fromJson(path, CocoObj.class);
+        String jsonContent = "";
 
-        HashMap<String, String> categories = new HashMap<>(); // category_id -> category_name
+        try {
+            jsonContent = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        CocoObj cocoObj = gson.fromJson(jsonContent, CocoObj.class);
+
+        String content = cocoObj.toString();
+        System.out.println(content);
+
+        HashMap<String, Img> actualFolderImgMap = new HashMap<>(); // img_id -> img
+        HashMap<String, String> categoryMap = new HashMap<>(); // category_id -> category_name
+        HashSet<String> alreadyPutImages = new HashSet<>(); // hashset to check if the image is already in the images list
+
+        // actual folder img map
+        for(Img img : actualFolderImg)
+            actualFolderImgMap.put(img.getId(), img);
+
+        // category map
         for(Category category : cocoObj.getCategories())
-            categories.put(category.getId(), category.getName());
-
-        ArrayList<ImgCoco> imgCocos = cocoObj.getImages();
-        HashMap<String, Img> img_map = new HashMap<>(); // image_id -> Img
-
-        for(ImgCoco imgCoco : imgCocos){
-            Img img = new Img(imgCoco.getFile_name(), imgCoco.getWidth(), imgCoco.getId(), imgCoco.getHeight());
-            img_map.put(img.getId(), img);
+            categoryMap.put(category.getId(), category.getName());
+        
+        // images to process
+        for(ImgCoco imgCoco : cocoObj.getImages()){
+            Img img = actualFolderImgMap.get(imgCoco.getId());
+            if(img == null)
+                continue;
+            
             images.add(img);
+            alreadyPutImages.add(img.getId());
         }
-
-        for(Annotation annotation : cocoObj.getAnnotations()){
-            String category = "";
-            if(categories.containsKey(annotation.getCategory_id()))
-                category = categories.get(annotation.getCategory_id());
-            else
-                category = "";
-            
-            
-        }
+        
+        for(Img img : images){
+            for(Annotation annotation : cocoObj.getAnnotations()){
+                if(!(annotation.getImage_id().equals(img.getId())))
+                    continue;
+                
+                Polygon polygon = new Polygon();
+                reconstructPolygon(polygon, annotation.getSegmentation());
+                polygon.setCategory(categoryMap.get(annotation.getCategory_id()));
+                polygon.setName("Polygon");
+                img.addPolygon(polygon);
+            }
+        } 
 
         return images;
+    }
+
+    private void reconstructPolygon(Polygon polygon, ArrayList<ArrayList<Double>> segmentation) {
+        for(ArrayList<Double> segment : segmentation)
+            for(int i = 0; i < segment.size(); i += 2)
+                polygon.addPoint(new Point(segment.get(i), segment.get(i + 1)));
     }
 
 }

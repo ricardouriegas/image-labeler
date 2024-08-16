@@ -47,11 +47,16 @@ public class Polygon implements Serializable {
 
     @Override
     public String toString() {
+        String content = "";
+        for (Point point : points) {
+            content += point.toString() + "\n";
+        }
+
         return "Polygon{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", category='" + category + '\'' +
-                ", points=" + points +
+                ", points=" + content +
                 '}';
     }
 }

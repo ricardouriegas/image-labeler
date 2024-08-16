@@ -87,10 +87,34 @@ public class Img {
         this.exportDate = exportDate;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setPolygons(ArrayList<Polygon> polygons) {
+        this.polygons = polygons;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
     @Override
     public String toString() {
+        String content = "";
+        for (Polygon polygon : polygons) {
+            content += polygon.toString() + "\n";
+        }
         return "Img{" +
-                "polygons=" + polygons +
+                "polygons=" + content +
                 ", fileName='" + fileName + '\'' +
                 ", width=" + width +
                 ", height=" + height +

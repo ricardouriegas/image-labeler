@@ -819,9 +819,22 @@ public class Controller {
     
     @FXML
     private void handleImportFromCoco() {
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open COCO File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("COCO Files", "*.json"));
+        File file = fileChooser.showOpenDialog(stage);
+
+        CocoParser cocoParser = new CocoParser();
+        ArrayList<Img> list = cocoParser.importCoco(file, images);
+
+        reconstructFromImages(list);
     }
-   
 
     @FXML
     private void handleImportFromYolo() {
