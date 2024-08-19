@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.File;
-import java.util.ArrayList;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,6 +34,9 @@ public class JSON {
 
         File file = fileChooser.showSaveDialog(null);
         if (file != null) {
+            if(!file.getName().endsWith(".json"))
+                file = new File(file.getAbsolutePath() + ".json");
+            
             try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 gson.toJson(imgs, writer);
             } catch (IOException e) {
@@ -42,8 +44,6 @@ public class JSON {
             }
         }
     }
-
-    
 
     public ArrayList<Img> fromJson(String jsonFilePath, ArrayList<Img> imgsFolder) {
         Type imgListType = new TypeToken<ArrayList<Img>>() {}.getType();
@@ -71,8 +71,4 @@ public class JSON {
     
         return imgs;
     }
-
-    
-    
-
 }

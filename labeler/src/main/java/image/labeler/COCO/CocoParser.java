@@ -197,7 +197,8 @@ public class CocoParser {
                 Polygon polygon = new Polygon();
                 reconstructPolygon(polygon, annotation.getSegmentation());
                 polygon.setCategory(categoryMap.get(annotation.getCategory_id()));
-                polygon.setName("Polygon");
+                polygon.setId(annotation.getId());
+                polygon.setName("Polygon " + annotation.getId());
                 img.addPolygon(polygon);
             }
         } 

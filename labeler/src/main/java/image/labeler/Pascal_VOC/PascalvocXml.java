@@ -4,10 +4,7 @@ import image.labeler.Point;
 import jakarta.xml.bind.annotation.*;
 import image.labeler.Polygon;
 import image.labeler.Img;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Singel Tone Class creada para proporcionar para serializar

@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
 import image.labeler.Pascal_VOC.PascalVoc;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,10 +25,7 @@ import javafx.stage.Stage;
 import net.coobird.thumbnailator.Thumbnails;
 import javafx.util.Callback;
 import javafx.scene.input.ScrollEvent;
-
 import java.util.List;
-import java.util.Locale.Category;
-
 import javafx.scene.control.Alert.AlertType;
 import javafx.embed.swing.SwingFXUtils;
 

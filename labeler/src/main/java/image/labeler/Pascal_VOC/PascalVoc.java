@@ -5,9 +5,7 @@ import jakarta.xml.bind.*;
 import java.io.File;
 
 public class PascalVoc {
-
     private static String RoutePath;
-
     private PascalVoc(){}
 
     /**

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<annotation>
+    <id>2fb4067715140ec6b4fe3a94f9d46053</id>
+    <name>rainbowdashcloud.png</name>
+    <width>1920</width>
+    <height>1080</height>
+    <Objects>
+        <Object>
+            <id>1</id>
+            <name>Polygon 1</name>
+            <Polygon>
+                <Points>
+                    <X>368.0</X>
+                    <Y>152.0</Y>
+                </Points>
+                <Points>
+                    <X>724.0</X>
+                    <Y>291.0</Y>
+                </Points>
+                <Points>
+                    <X>330.0</X>
+                    <Y>498.0</Y>
+                </Points>
+                <Points>
+                    <X>368.0</X>
+                    <Y>152.0</Y>
+                </Points>
+            </Polygon>
+        </Object>
+    </Objects>
+</annotation>

@@ -1,0 +1,123 @@
+{
+  "images": [
+    {
+      "file_name": "rd.jpg",
+      "width": 1728,
+      "id": "cc5f7324312fc576d829b0c5cfe47495",
+      "height": 1080
+    },
+    {
+      "file_name": "rainbowdashcloud.png",
+      "width": 1920,
+      "id": "2fb4067715140ec6b4fe3a94f9d46053",
+      "height": 1080
+    },
+    {
+      "file_name": "6793879-free-rainbow-dash-wallpaper.jpg",
+      "width": 1920,
+      "id": "371b9d1c71e21d31aa11be69c51645c0",
+      "height": 1080
+    },
+    {
+      "file_name": "rdpp.png",
+      "width": 998,
+      "id": "5eddb03bdf657466743e13f2e07e7579",
+      "height": 1080
+    },
+    {
+      "file_name": "wallpaperflare.com_wallpaper (1).jpg",
+      "width": 1902,
+      "id": "12e0ff6b95ba1635f3f07b8ab9fd08a7",
+      "height": 1080
+    },
+    {
+      "file_name": "wp.jpg",
+      "width": 1728,
+      "id": "f0bc1c893c85e0ea94f023e6f5b0d6dc",
+      "height": 1080
+    },
+    {
+      "file_name": "sci-fi-anime-girl-2k-wallpaper-uhdpaper.com-915@0@i.jpg",
+      "width": 1920,
+      "id": "81d15e722eb598907667fdb135512025",
+      "height": 1080
+    }
+  ],
+  "annotations": [
+    {
+      "category_id": "c6cc8094c2dc07b700ffcc36d64e2138",
+      "bbox": [
+        391.0,
+        118.0,
+        466.0,
+        254.0
+      ],
+      "image_id": "371b9d1c71e21d31aa11be69c51645c0",
+      "id": 1,
+      "segmentation": [
+        [
+          391.0,
+          118.0,
+          857.0,
+          222.0,
+          588.0,
+          372.0,
+          391.0,
+          118.0
+        ]
+      ]
+    },
+    {
+      "category_id": "d41d8cd98f00b204e9800998ecf8427e",
+      "bbox": [
+        368.0,
+        226.0,
+        492.0,
+        209.0
+      ],
+      "image_id": "371b9d1c71e21d31aa11be69c51645c0",
+      "id": 2,
+      "segmentation": [
+        [
+          368.0,
+          345.0,
+          622.0,
+          226.0,
+          860.0,
+          435.0,
+          368.0,
+          345.0
+        ]
+      ]
+    },
+    {
+      "category_id": "c6cc8094c2dc07b700ffcc36d64e2138",
+      "bbox": [
+        231.0,
+        77.0,
+        680.0,
+        484.0
+      ],
+      "image_id": "371b9d1c71e21d31aa11be69c51645c0",
+      "id": 3,
+      "segmentation": [
+        [
+          911.0,
+          561.0,
+          643.0,
+          77.0,
+          231.0,
+          498.0,
+          911.0,
+          561.0
+        ]
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "pedro",
+      "id": "c6cc8094c2dc07b700ffcc36d64e2138"
+    }
+  ]
+}
