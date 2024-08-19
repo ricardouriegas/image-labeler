@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
 import image.labeler.Img;
 import image.labeler.Point;
 import image.labeler.Polygon;
@@ -165,8 +164,8 @@ public class CocoParser {
 
         CocoObj cocoObj = gson.fromJson(jsonContent, CocoObj.class);
 
-        String content = cocoObj.toString();
-        System.out.println(content);
+        // String content = cocoObj.toString();
+        // System.out.println(content);
 
         HashMap<String, Img> actualFolderImgMap = new HashMap<>(); // img_id -> img
         HashMap<String, String> categoryMap = new HashMap<>(); // category_id -> category_name
@@ -202,6 +201,10 @@ public class CocoParser {
                 img.addPolygon(polygon);
             }
         } 
+
+        for(Img img : actualFolderImg)
+            if(!alreadyPutImages.contains(img.getId()))
+                images.add(img);
 
         return images;
     }

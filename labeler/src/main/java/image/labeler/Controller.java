@@ -799,6 +799,9 @@ public class Controller {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
         File file = fileChooser.showSaveDialog(stage);
 
+        if(!file.getAbsolutePath().endsWith(".json"))
+            file = new File(file.getAbsolutePath() + ".json");
+        
         if (file != null) {
             YOLOManager.saveYolo(file, yoloList);
         }

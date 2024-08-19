@@ -1,0 +1,150 @@
+{
+  "images": [
+    {
+      "file_name": "rd.jpg",
+      "width": 1728,
+      "id": "cc5f7324312fc576d829b0c5cfe47495",
+      "height": 1080
+    },
+    {
+      "file_name": "rainbowdashcloud.png",
+      "width": 1920,
+      "id": "2fb4067715140ec6b4fe3a94f9d46053",
+      "height": 1080
+    },
+    {
+      "file_name": "6793879-free-rainbow-dash-wallpaper.jpg",
+      "width": 1920,
+      "id": "371b9d1c71e21d31aa11be69c51645c0",
+      "height": 1080
+    },
+    {
+      "file_name": "rdpp.png",
+      "width": 998,
+      "id": "5eddb03bdf657466743e13f2e07e7579",
+      "height": 1080
+    },
+    {
+      "file_name": "wallpaperflare.com_wallpaper (1).jpg",
+      "width": 1902,
+      "id": "12e0ff6b95ba1635f3f07b8ab9fd08a7",
+      "height": 1080
+    },
+    {
+      "file_name": "wp.jpg",
+      "width": 1728,
+      "id": "f0bc1c893c85e0ea94f023e6f5b0d6dc",
+      "height": 1080
+    },
+    {
+      "file_name": "sci-fi-anime-girl-2k-wallpaper-uhdpaper.com-915@0@i.jpg",
+      "width": 1920,
+      "id": "81d15e722eb598907667fdb135512025",
+      "height": 1080
+    }
+  ],
+  "annotations": [
+    {
+      "category_id": "d41d8cd98f00b204e9800998ecf8427e",
+      "bbox": [
+        516.0,
+        247.0,
+        401.0,
+        369.0
+      ],
+      "image_id": "cc5f7324312fc576d829b0c5cfe47495",
+      "id": 1,
+      "segmentation": [
+        [
+          747.0,
+          247.0,
+          917.0,
+          354.0,
+          516.0,
+          616.0,
+          747.0,
+          247.0
+        ]
+      ]
+    },
+    {
+      "category_id": "ab0a45e7c5464691cffdd8333b4f680e",
+      "bbox": [
+        486.0,
+        174.0,
+        338.0,
+        173.0
+      ],
+      "image_id": "cc5f7324312fc576d829b0c5cfe47495",
+      "id": 2,
+      "segmentation": [
+        [
+          486.0,
+          182.0,
+          824.0,
+          174.0,
+          742.0,
+          347.0,
+          486.0,
+          182.0
+        ]
+      ]
+    },
+    {
+      "category_id": "d41d8cd98f00b204e9800998ecf8427e",
+      "bbox": [
+        506.0,
+        277.0,
+        392.0,
+        119.0
+      ],
+      "image_id": "cc5f7324312fc576d829b0c5cfe47495",
+      "id": 3,
+      "segmentation": [
+        [
+          506.0,
+          346.0,
+          898.0,
+          277.0,
+          729.0,
+          396.0,
+          506.0,
+          346.0
+        ]
+      ]
+    },
+    {
+      "category_id": "c6cc8094c2dc07b700ffcc36d64e2138",
+      "bbox": [
+        551.0,
+        155.0,
+        395.0,
+        413.0
+      ],
+      "image_id": "2fb4067715140ec6b4fe3a94f9d46053",
+      "id": 1,
+      "segmentation": [
+        [
+          551.0,
+          155.0,
+          946.0,
+          303.0,
+          721.0,
+          568.0,
+          551.0,
+          155.0
+        ]
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "peepe",
+      "id": "ab0a45e7c5464691cffdd8333b4f680e"
+    },
+    {
+      "name": "pedro",
+      "id": "c6cc8094c2dc07b700ffcc36d64e2138"
+    }
+  ]
+}
