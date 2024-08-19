@@ -745,6 +745,7 @@ public class Controller {
     // ** Export functions **
 
     /**
+     * Nota para los colaboradores:
      * Ok, una vez en este punto, tengan en cuenta que lo que van a tener
      * que exportar es el ArrayList<Img> images, que contiene todas las imágenes
      * con sus respectivos polígonos.
@@ -758,7 +759,6 @@ public class Controller {
      * para recuperar la información. Voy a hacer un método para reconstruir el canva a partir de un arraylist
      * de imágenes, pero de ustedes depende darme ese array.
      */
-
      
     @FXML
     private void handleExportToCoco() {
@@ -781,8 +781,7 @@ public class Controller {
 
     @FXML
     private void handleExportToYolo() {
-        // TODO: Implement the export to YOLO format
-        if (currentImg == null) {
+        if (validateCurrentImage()) {
             Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
             alert.showAndWait();
             return;
@@ -797,17 +796,17 @@ public class Controller {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YOLO Files", "*.txt"));
         File file = fileChooser.showSaveDialog(stage);
 
-        if(!file.getAbsolutePath().endsWith(".json"))
-            file = new File(file.getAbsolutePath() + ".json");
+        if(!file.getAbsolutePath().endsWith(".txt"))
+            file = new File(file.getAbsolutePath() + ".txt");
         
-        if (file != null) {
+        if (file != null) 
             YOLOManager.saveYolo(file, yoloList);
-        }
+        
     }
 
     @FXML
     private void handleExportToPascalVOC() {
-        if (currentImg == null) {
+        if (validateCurrentImage()) {
             Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
             alert.show();
             return;
@@ -818,9 +817,13 @@ public class Controller {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PASCAL-VOC Files", "*.xml"));
         File file = fileChooser.showSaveDialog(stage);
 
-        if (!file.exists()){
-            PascalVoc.pascalvocParser(currentImg,file.getAbsolutePath());
-        }
+        // check if the file has the correct extension
+        if(!file.getAbsolutePath().endsWith(".xml"))
+            file = new File(file.getAbsolutePath() + ".xml");
+
+        // write the current image to the file or overwrite the file
+        PascalVoc.pascalvocParser(currentImg,file.getAbsolutePath());
+        
 
     }
 
@@ -937,5 +940,25 @@ public class Controller {
         ArrayList<Img> list = json.fromJson(file.getAbsolutePath(), images);
 
         reconstructFromImages(list);
+    }
+
+    /**
+     * Function to validate when exporting if the currentImg is null
+     * or if the currentImage doesnt have any polygons
+     */
+    private boolean validateCurrentImage(){
+        if(currentImg == null){
+            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            alert.showAndWait();
+            return true;
+        }
+
+        if(currentImg.getPolygons().isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No polygons in the image", ButtonType.OK);
+            alert.showAndWait();
+            return true;
+        }
+
+        return false;
     }
 }
