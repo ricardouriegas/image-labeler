@@ -1,0 +1,143 @@
+[
+  {
+    "polygons": [
+      {
+        "id": 1,
+        "name": "Polygon 1",
+        "points": [
+          {
+            "x": 747.0,
+            "y": 247.0
+          },
+          {
+            "x": 917.0,
+            "y": 354.0
+          },
+          {
+            "x": 516.0,
+            "y": 616.0
+          },
+          {
+            "x": 747.0,
+            "y": 247.0
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Polygon 2",
+        "category": "peepe",
+        "points": [
+          {
+            "x": 486.0,
+            "y": 182.0
+          },
+          {
+            "x": 824.0,
+            "y": 174.0
+          },
+          {
+            "x": 742.0,
+            "y": 347.0
+          },
+          {
+            "x": 486.0,
+            "y": 182.0
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "oe",
+        "points": [
+          {
+            "x": 506.0,
+            "y": 346.0
+          },
+          {
+            "x": 898.0,
+            "y": 277.0
+          },
+          {
+            "x": 729.0,
+            "y": 396.0
+          },
+          {
+            "x": 506.0,
+            "y": 346.0
+          }
+        ]
+      }
+    ],
+    "fileName": "rd.jpg",
+    "width": 1728,
+    "height": 1080,
+    "id": "cc5f7324312fc576d829b0c5cfe47495"
+  },
+  {
+    "polygons": [
+      {
+        "id": 1,
+        "name": "Polygon 1",
+        "category": "pedro",
+        "points": [
+          {
+            "x": 551.0,
+            "y": 155.0
+          },
+          {
+            "x": 946.0,
+            "y": 303.0
+          },
+          {
+            "x": 721.0,
+            "y": 568.0
+          },
+          {
+            "x": 551.0,
+            "y": 155.0
+          }
+        ]
+      }
+    ],
+    "fileName": "rainbowdashcloud.png",
+    "width": 1920,
+    "height": 1080,
+    "id": "2fb4067715140ec6b4fe3a94f9d46053"
+  },
+  {
+    "polygons": [],
+    "fileName": "6793879-free-rainbow-dash-wallpaper.jpg",
+    "width": 1920,
+    "height": 1080,
+    "id": "371b9d1c71e21d31aa11be69c51645c0"
+  },
+  {
+    "polygons": [],
+    "fileName": "rdpp.png",
+    "width": 998,
+    "height": 1080,
+    "id": "5eddb03bdf657466743e13f2e07e7579"
+  },
+  {
+    "polygons": [],
+    "fileName": "wallpaperflare.com_wallpaper (1).jpg",
+    "width": 1902,
+    "height": 1080,
+    "id": "12e0ff6b95ba1635f3f07b8ab9fd08a7"
+  },
+  {
+    "polygons": [],
+    "fileName": "wp.jpg",
+    "width": 1728,
+    "height": 1080,
+    "id": "f0bc1c893c85e0ea94f023e6f5b0d6dc"
+  },
+  {
+    "polygons": [],
+    "fileName": "sci-fi-anime-girl-2k-wallpaper-uhdpaper.com-915@0@i.jpg",
+    "width": 1920,
+    "height": 1080,
+    "id": "81d15e722eb598907667fdb135512025"
+  }
+]
