@@ -762,17 +762,17 @@ public class Controller {
      
     @FXML
     private void handleExportToCoco() {
-        if(images == null || images.isEmpty()){
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
+        if (validateImage()) 
             return;
-        }
 
         // Convert the images to COCO format
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save COCO File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("COCO Files", "*.json"));
         File file = fileChooser.showSaveDialog(stage);
+
+        if (!file.getAbsolutePath().endsWith(".json"))
+            file = new File(file.getAbsolutePath() + ".json");
 
         CocoParser cocoParser = new CocoParser();
         cocoParser.parse(images, file);
@@ -781,11 +781,8 @@ public class Controller {
 
     @FXML
     private void handleExportToYolo() {
-        if (validateCurrentImage()) {
-            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
-            alert.showAndWait();
+        if (validateImage()) 
             return;
-        }
 
         // Convert the polygons of the current image to YOLO format
         List<YOLO> yoloList = YOLOManager.toYolo(currentImg.getPolygons(), (int) currentImage.getWidth(), (int) currentImage.getHeight());
@@ -799,18 +796,16 @@ public class Controller {
         if(!file.getAbsolutePath().endsWith(".txt"))
             file = new File(file.getAbsolutePath() + ".txt");
         
-        if (file != null) 
-            YOLOManager.saveYolo(file, yoloList);
+        
+        YOLOManager.saveYolo(file, yoloList);
         
     }
 
     @FXML
     private void handleExportToPascalVOC() {
-        if (validateCurrentImage()) {
-            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
-            alert.show();
+        if (validateImage()) 
             return;
-        }
+        
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save PASCAL VOC File");
@@ -823,17 +818,12 @@ public class Controller {
 
         // write the current image to the file or overwrite the file
         PascalVoc.pascalvocParser(currentImg,file.getAbsolutePath());
-        
-
     }
 
     @FXML
     private void handleExportToJson() {
-        if(images == null || images.isEmpty()){
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
+        if (validateImage()) 
             return;
-        }
         
         JSON json = new JSON();
         json.toJson(images);
@@ -946,9 +936,15 @@ public class Controller {
      * Function to validate when exporting if the currentImg is null
      * or if the currentImage doesnt have any polygons
      */
-    private boolean validateCurrentImage(){
+    private boolean validateImage(){
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
+            alert.showAndWait();
+            return true;
+        }
+
         if(currentImg == null){
-            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
+            Alert alert = new Alert(AlertType.ERROR, "No image selected", ButtonType.OK);
             alert.showAndWait();
             return true;
         }
