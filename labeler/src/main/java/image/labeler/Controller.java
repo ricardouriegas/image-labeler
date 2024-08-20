@@ -762,7 +762,7 @@ public class Controller {
      
     @FXML
     private void handleExportToCoco() {
-        if (validateImage()) 
+        if (validateImageExporting()) 
             return;
 
         // Convert the images to COCO format
@@ -781,7 +781,7 @@ public class Controller {
 
     @FXML
     private void handleExportToYolo() {
-        if (validateImage()) 
+        if (validateImageExporting()) 
             return;
 
         // Convert the polygons of the current image to YOLO format
@@ -803,9 +803,8 @@ public class Controller {
 
     @FXML
     private void handleExportToPascalVOC() {
-        if (validateImage()) 
+        if (validateImageExporting()) 
             return;
-        
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save PASCAL VOC File");
@@ -822,7 +821,7 @@ public class Controller {
 
     @FXML
     private void handleExportToJson() {
-        if (validateImage()) 
+        if (validateImageExporting()) 
             return;
         
         JSON json = new JSON();
@@ -833,11 +832,8 @@ public class Controller {
     
     @FXML
     private void handleImportFromCoco() {
-        if(images == null || images.isEmpty()){
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
+        if(validateImageImporting())
             return;
-        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open COCO File");
@@ -852,12 +848,8 @@ public class Controller {
 
     @FXML
     private void handleImportFromYolo() {
-        // check if images are loaded, if not show an error message
-        if(images == null || images.isEmpty()){
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
+        if(validateImageImporting())
             return;
-        }
         
         // read YOLO file
         FileChooser fileChooser = new FileChooser();
@@ -882,11 +874,8 @@ public class Controller {
 
     @FXML
     private void handleImportFromPascalVOC() {
-        if(images == null || images.isEmpty()){
-            Alert alert = new Alert(AlertType.ERROR, "No image loaded", ButtonType.OK);
-            alert.showAndWait();
+        if(validateImageImporting())
             return;
-        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Pascal Voc File");
@@ -915,11 +904,8 @@ public class Controller {
 
     @FXML
     private void handleImportFromJson() {
-        if (images == null || images.isEmpty()) {
-            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
-            alert.showAndWait();
+        if(validateImageImporting())
             return;
-        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open JSON File");
@@ -936,7 +922,7 @@ public class Controller {
      * Function to validate when exporting if the currentImg is null
      * or if the currentImage doesnt have any polygons
      */
-    private boolean validateImage(){
+    private boolean validateImageExporting(){
         if(images == null || images.isEmpty()){
             Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
             alert.showAndWait();
@@ -951,6 +937,19 @@ public class Controller {
 
         if(currentImg.getPolygons().isEmpty()){
             Alert alert = new Alert(AlertType.ERROR, "No polygons in the image", ButtonType.OK);
+            alert.showAndWait();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Function to validate when importing if the images list is empty
+     */
+    private boolean validateImageImporting(){
+        if(images == null || images.isEmpty()){
+            Alert alert = new Alert(AlertType.ERROR, "No images loaded", ButtonType.OK);
             alert.showAndWait();
             return true;
         }
