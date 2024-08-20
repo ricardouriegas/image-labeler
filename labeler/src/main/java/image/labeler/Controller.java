@@ -894,7 +894,9 @@ public class Controller {
             currentImg.getPolygons().addAll(img.getPolygons());
 
             for(Polygon polygon : currentImg.getPolygons()){
-                categories.add(polygon.getCategory());
+                if(polygon.getCategory() != null){
+                    categories.add(polygon.getCategory());
+                }
             }
 
             updatePolygonList();
