@@ -601,7 +601,7 @@ public class Controller {
         }
 
         for (Polygon polygon : currentImg.getPolygons()) {
-            if (polygon.getCategory() == null) {
+            if (polygon.getCategory() == null || polygon.getCategory().equals("null")) {
                 TreeItem<String> polygonItem = new TreeItem<>(polygon.getName());
                 rootItem.getChildren().add(polygonItem);
             }
@@ -894,7 +894,7 @@ public class Controller {
             currentImg.getPolygons().addAll(img.getPolygons());
 
             for(Polygon polygon : currentImg.getPolygons()){
-                if(polygon.getCategory() != null){
+                if(!polygon.getCategory().equals("null")){
                     categories.add(polygon.getCategory());
                 }
             }
